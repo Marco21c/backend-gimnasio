@@ -7,8 +7,7 @@ app.use(express.json());
 app.use(cors({origin: 'http://localhost:4200'}));
 //Cargamos el modulo de direccionamiento de rutas
 
-//app.use('/api/agente', require('./routes/agente.route.js'));
-//app.use('/api/sector', require('./routes/sector.route'));
+app.use('/api/alumno', require('./routers/alumno.route.js'));
 
 //setting
 app.set('port', process.env.PORT || 3000);
