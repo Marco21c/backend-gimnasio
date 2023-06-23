@@ -6,7 +6,7 @@ const {Schema} = mongoose;
 const AlumnoSchema = new Schema({
  
  fotoPerfil: {type:String, required:true},
- peso: {type:String ,required:true},
+ peso: {type:Number,required:true},
  nivel: {type:String ,required:true},
  fechaIncripcion: {type:String ,required:true}
  //rutinas: {type: Schema.Types.ObjectId , ref: Rutina, required: true},

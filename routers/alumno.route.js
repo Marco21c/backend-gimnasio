@@ -1,6 +1,5 @@
 //defino controlador para el manejo de CRUD
 const alumnoCtrl = require('./../controllers/alumno.controller');
-const authMiddleware = require('../middlewares/authMiddleware');
 //creamos el manejador de rutas
 const express = require('express');
 const router = express.Router();
