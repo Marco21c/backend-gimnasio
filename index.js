@@ -9,6 +9,8 @@ app.use(cors({origin: 'http://localhost:4200'}));
 
 app.use('/api/alumno', require('./routers/alumno.route.js'));
 app.use('/api/user', require('./routers/usuario.route.js'));
+app.use('/api/plan', require('./routers/plan.route.js'));
+
 
 //setting
 app.set('port', process.env.PORT || 3000);
