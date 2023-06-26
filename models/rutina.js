@@ -15,6 +15,7 @@ const RutinaSchema = new Schema({
     fechaCreacion:     {type: Date, default: Date.now, required: false},
     ejercicios:        [{type: Ejercicio.schema, default: [], required: false}],
     entrenador:        {type: Schema.Types.ObjectId, ref: Entrenador, required: true},
+    asistencia:        {type: Boolean, default: false, require: false},
 });
 
 module.exports = mongoose.models.Rutina || mongoose.model('Rutina', RutinaSchema);
