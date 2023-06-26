@@ -97,6 +97,35 @@ alumnoCtrl.agregarRutina = async (req, res) => {
     }
 }
 
+/**
+ * Permite registrar la asistencia de una rutina
+ * @param req
+ * @param res
+ * @returns {Promise<void>}
+ */
+alumnoCtrl.registrarAsistencia = async (req, res) => {
+    const idAlumno = req.params.idalumno;
+    const idRutina = req.params.idrutina;
+    try {
+        let alumno = await Alumno.findById(idAlumno);
+        if (!alumno) {
+            return res.status(404).json({'status': '0', 'msg': 'No se encontró el alumno.'});
+        }
+
+        const rutinaIndex = alumno.rutinas.findIndex(r => r._id.toString() === idRutina);
+
+        if (rutinaIndex === -1) {
+            return res.status(404).json({'status': '0', 'msg': 'No se encontró la rutina en el alumno.'});
+        }
+
+        alumno.rutinas[rutinaIndex].asistencia = true;
+        await alumno.save();
+        return res.json({'status': '1', 'msg': 'Se registró la asistencia del alumno.'});
+    } catch (error) {
+        return res.status(400).json({'status': '0', 'msg': 'Error al registrar la asistencia. Error: ' + error});
+    }
+}
+
 alumnoCtrl.editAlumno = async (req, res) => {
     const valumno = new Alumno(req.body);
     try {
