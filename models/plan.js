@@ -6,7 +6,7 @@ const estadosDelPlan = ['A', 'I'];
 const PlanSchema = new Schema({
     nombre:      {type: String, require: true},
     descripcion: {type: String, require: true},
-    imagen:      {type: String, require: true},
+    imagen:      {type: String, require: false},
     precio:      {type: Number, require: true},
     estado:      {type: String, enum: estadosDelPlan, default: 'A', require: false}
 });

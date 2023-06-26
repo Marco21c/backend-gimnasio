@@ -12,7 +12,6 @@ const RutinaSchema = new Schema({
     // entrenamiento cardiovascular, entrenamiento de fuerza, entrenamiento de flexibilidad, etc.
     tipoEntrenamiento: {type: String, required: true},
     fechaCreacion:     {type: String, required: true},
-    // /ejercicios:        [{type: Ejercicio.sc, ref: Ejercicio, required: true}]
     ejercicios:        [{type: Ejercicio.schema, default: [], required: false}]
 });
 

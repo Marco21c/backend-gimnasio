@@ -1,4 +1,5 @@
 const Alumno = require('../models/alumno');
+const bcrypt = require("bcrypt");
 const alumnoCtrl = {}
 
 /**
@@ -33,7 +34,29 @@ alumnoCtrl.getAlumnos = async (req, res) => {
     let alumnos = await Alumno.find().populate('plan');
     res.json(alumnos);
 }
-    
+
+/**
+ * Permite darle un usuario y clave (encriptada) al alumno.
+ * @param req
+ * @param res
+ * @returns {Promise<void>}
+ */
+alumnoCtrl.generarUsuarioClaveParaAlumno = async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const password_encriptada = await bcrypt.hash(password, 10);
+        await Alumno.findByIdAndUpdate(
+            req.params.id,
+            { $set: { username: username, password: password_encriptada } }
+        );
+        res.json({'status': '1', 'msg': 'Se genero usuario y clave para el alumno.'})
+    } catch (error) {
+        res.status(400).json({
+            'status': '0',
+            'msg': 'Error al generar usuario y clave. error-' + error
+        })
+    }
+}
 
 alumnoCtrl.editAlumno = async (req, res) => {
     const valumno = new Alumno(req.body);
