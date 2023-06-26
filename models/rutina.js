@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
-const {Schema} = mongoose;
-const Ejercicio = require('./ejercicio');
+const mongoose   = require('mongoose');
+const {Schema}   = mongoose;
+const Ejercicio  = require('./ejercicio');
+const Entrenador = require('./entrenador');
 
 const RutinaSchema = new Schema({
     nombre:            {type: String, required: true},
@@ -11,8 +12,9 @@ const RutinaSchema = new Schema({
     objetivo:          {type: String, required: true},
     // entrenamiento cardiovascular, entrenamiento de fuerza, entrenamiento de flexibilidad, etc.
     tipoEntrenamiento: {type: String, required: true},
-    fechaCreacion:     {type: String, required: true},
-    ejercicios:        [{type: Ejercicio.schema, default: [], required: false}]
+    fechaCreacion:     {type: Date, default: Date.now, required: false},
+    ejercicios:        [{type: Ejercicio.schema, default: [], required: false}],
+    entrenador:        {type: Schema.Types.ObjectId, ref: Entrenador, required: true},
 });
 
 module.exports = mongoose.models.Rutina || mongoose.model('Rutina', RutinaSchema);

@@ -3,13 +3,24 @@ const bcrypt = require("bcrypt");
 const alumnoCtrl = {}
 
 /**
+ * Permite encriptar una contraseña pasada por parametro
+ * @param password
+ * @returns {Promise<void|*>}
+ */
+async function getPasswordEncrypted(password) {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
+}
+
+
+/**
  * Permite registrar un alumno, teniendo en cuenta un plan.
  * @param req
  * @param res
  * @returns {Promise<void>}
  */
 alumnoCtrl.createAlumno = async (req, res) => {
-    var alumno = new Alumno(req.body);
+    let alumno = new Alumno(req.body);
     try {
         await alumno.save();
         res.json({
@@ -31,7 +42,13 @@ alumnoCtrl.createAlumno = async (req, res) => {
  * @returns {Promise<void>}
  */
 alumnoCtrl.getAlumnos = async (req, res) => {
-    let alumnos = await Alumno.find().populate('plan');
+    let alumnos = await Alumno.find().populate('plan').populate({
+        path: 'rutinas',
+        populate: {
+            path: 'entrenador',
+            model: 'Entrenador',
+        },
+    });
     res.json(alumnos);
 }
 
@@ -44,7 +61,7 @@ alumnoCtrl.getAlumnos = async (req, res) => {
 alumnoCtrl.generarUsuarioClaveParaAlumno = async (req, res) => {
     const { username, password } = req.body;
     try {
-        const password_encriptada = await bcrypt.hash(password, 10);
+        const password_encriptada = await getPasswordEncrypted(password);
         await Alumno.findByIdAndUpdate(
             req.params.id,
             { $set: { username: username, password: password_encriptada } }
@@ -54,6 +71,28 @@ alumnoCtrl.generarUsuarioClaveParaAlumno = async (req, res) => {
         res.status(400).json({
             'status': '0',
             'msg': 'Error al generar usuario y clave. error-' + error
+        })
+    }
+}
+
+/**
+ * Permite agregarle una rutina al alumno
+ * @param req
+ * @param res
+ * @returns {Promise<void>}
+ */
+alumnoCtrl.agregarRutina = async (req, res) => {
+    const rutina = req.body;
+    try {
+        await Alumno.findByIdAndUpdate(
+            req.params.id,
+            { $push: { rutinas: rutina } }
+        );
+        res.json({'status': '1', 'msg': 'Se agrego la rutina al alumno.'})
+    } catch (error) {
+        res.status(400).json({
+            'status': '0',
+            'msg': 'Error al agregar la rutina. error-' + error
         })
     }
 }

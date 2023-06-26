@@ -11,6 +11,7 @@ app.use('/api/alumno', require('./routers/alumno.route.js'));
 app.use('/api/user', require('./routers/usuario.route.js'));
 app.use('/api/plan', require('./routers/plan.route.js'));
 app.use('/api/admin', require('./routers/administrativo.route'));
+app.use('/api/entrenador', require('./routers/entrenador.route'));
 
 
 //setting

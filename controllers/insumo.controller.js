@@ -1,5 +1,4 @@
 const Insumo = require('../models/insumo');
-const Alumno = require("../models/alumno");
 const insumoCtrl = {};
 
 /**
@@ -9,7 +8,7 @@ const insumoCtrl = {};
  * @returns {Promise<void>}
  */
 insumoCtrl.createInsumo = async (req, res) => {
-    var insumo = new Insumo(req.body);
+    let insumo = new Insumo(req.body);
     try {
         await insumo.save();
         res.json({
