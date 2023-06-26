@@ -18,6 +18,7 @@ const AlumnoSchema = new Schema({
  nivelFisico:      {type: String, required: false},
  username:         {type: String, default: "", required: false},
  password:         {type: String, default: "", required: false},
+ rol:              {type: String, default: "ALUMNO", required: false},
  plan:             {type: Schema.Types.ObjectId, ref: PlanSchema, required: true},
  rutinas:          [{type: RutinaSchema.schema, default: [], required: false}]
 });

@@ -11,7 +11,8 @@ const EntrenadorSchema = new Schema({
     email:            {type: String, required: true},
     fotoPerfil:       {type: String, required: false},
     username:         {type: String, required: true},
-    password:         {type: String, required: true}
+    password:         {type: String, required: true},
+    rol:              {type: String, default: "ENTRENADOR", required: false},
 });
 
 module.exports = mongoose.models.Entrenador || mongoose.model('Entrenador', EntrenadorSchema);

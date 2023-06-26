@@ -1,5 +1,6 @@
 const Alumno = require('../models/alumno');
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
 const alumnoCtrl = {}
 
 /**
@@ -12,6 +13,33 @@ async function getPasswordEncrypted(password) {
     return await bcrypt.hash(password, salt);
 }
 
+alumnoCtrl.loginAlumno = async (req, res)=>{
+    try {
+        const { username, password } = req.body;
+        const alumno = await Alumno.findOne({ username });
+
+        if (!alumno) {
+            return res.status(401).json({ error: 'No se encontró ningún alumno con el nombre de usuario especificado.' });
+        }
+
+        const validarPassword = await bcrypt.compare(password, alumno.password);
+
+        if (!validarPassword) {
+            return res.status(401).json({ error: 'Credenciales de inicio de sesión inválidas' });
+        }
+
+        const unToken = jwt.sign({id: alumno._id, rol: alumno.rol}, "secretkey");
+        res.status(200).json({
+            message: 'Inicio de sesión exitoso',
+            username: alumno.username,
+            rol: alumno.rol,
+            userid: alumno._id,
+            token: unToken
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Error en el proceso.' });
+    }
+};
 
 /**
  * Permite registrar un alumno, teniendo en cuenta un plan.
@@ -82,6 +110,10 @@ alumnoCtrl.generarUsuarioClaveParaAlumno = async (req, res) => {
  * @returns {Promise<void>}
  */
 alumnoCtrl.agregarRutina = async (req, res) => {
+    if (req.userRol !== 'ENTRENADOR') {
+        return res.status(403).json({ 'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.' });
+    }
+
     const rutina = req.body;
     try {
         await Alumno.findByIdAndUpdate(
