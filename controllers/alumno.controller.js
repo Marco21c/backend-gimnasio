@@ -158,6 +158,39 @@ alumnoCtrl.registrarAsistencia = async (req, res) => {
     }
 }
 
+/**
+ * Permite devolver las rutinas asignadas a un alumno en particular
+ * @param req
+ * @param res
+ * @returns {Promise<*>}
+ */
+alumnoCtrl.getRutinasAsignadas = async (req, res) => {
+    const idAlumno = req.params.idalumno;
+
+    try {
+        const alumno = await Alumno.findById(idAlumno);
+
+        if (!alumno) {
+            return res.status(404).json({ 'status': '0', 'msg': 'No se encontró el alumno.' });
+        }
+
+        if (alumno.rutinas.length === 0) {
+            return res.json({ 'status': '1', 'msg': 'El alumno no tiene rutinas asignadas.' });
+        }
+
+        res.json({
+            'status': '1',
+            'msg': 'Lista de rutinas asignadas al alumno.',
+            'rutinas':  alumno.rutinas,
+            'total': alumno.rutinas.length
+        });
+
+    } catch (error) {
+        return res.status(400).json({'status': '0', 'msg': 'Error al devolver la lista de rutinas. Error: ' + error});
+    }
+}
+
+
 alumnoCtrl.editAlumno = async (req, res) => {
     const valumno = new Alumno(req.body);
     try {
