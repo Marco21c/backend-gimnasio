@@ -7,6 +7,7 @@ const router = express.Router();
 router.post('/login', alumnoCtrl.loginAlumno);
 router.put('/:idalumno/rutinas/:idrutina/asistencia', alumnoCtrl.registrarAsistencia);
 router.get('/:idalumno/rutinas', alumnoCtrl.getRutinasAsignadas);
+router.get('/:idalumno/asistencias', alumnoCtrl.getRutinasConAsistencia);
 
 //exportamos el modulo de rutas
 module.exports = router;
