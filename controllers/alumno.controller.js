@@ -225,22 +225,42 @@ alumnoCtrl.getRutinasConAsistencia = async (req, res) => {
     }
 }
 
+/**
+ * Permite actualizar los datos personales de un alumno,
+ * en caso de modificar la contraseña, se volvera a encriptar
+ * @param req
+ * @param res
+ * @returns {Promise<void>}
+ */
+alumnoCtrl.updateAlumno = async (req, res) => {
+    const alumnoId = req.params.idalumno;
 
-alumnoCtrl.editAlumno = async (req, res) => {
-    const valumno = new Alumno(req.body);
     try {
-    await Alumno.updateOne({_id: req.body._id}, valumno);
-    res.json({
-    'status': '1',
-    'msg': 'Alumno modificado.'
-    })
-    } catch (error) {
-    res.status(400).json({
-    'status': '0',
-    'msg': 'Error procesando la operacion'
-    })
+        const alumno = await Alumno.findById(alumnoId);
 
-}
+        if (!alumno) {
+            return res.status(404).json({
+                'status': '0',
+                'msg': 'No se encontró el alumno para actualizar.'
+            });
+        }
+
+        // Verificar si modifico la contraseña
+        req.body.password = req.body.password ? await getPasswordEncrypted(req.body.password) : alumno.password;
+
+        await Alumno.findByIdAndUpdate(alumnoId, req.body);
+
+        res.json({
+            'status': '1',
+            'msg': 'Datos personales actualizados.'
+        });
+
+    } catch (error) {
+        res.status(400).json({
+            'status': '0',
+            'msg': 'Error al actualizar los datos personales.'
+        });
     }
+}
 
 module.exports = alumnoCtrl;
