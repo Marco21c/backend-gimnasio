@@ -263,4 +263,31 @@ alumnoCtrl.updateAlumno = async (req, res) => {
     }
 }
 
+/**
+ * Permite obtener los datos de un alumno
+ * @param req
+ * @param res
+ * @returns {Promise<void>}
+ */
+alumnoCtrl.getAlumno = async(req,res) => {
+    try{
+    const alumno = await Alumno.findById( req.params.idalumno);
+    
+    if (!alumno) {
+        return res.status(404).json({
+            'status': '0',
+            'msg': 'No se encontró el alumno.'
+        });
+    }
+     
+    res.status(200).json(alumno);
+    }catch(error){
+        res.status(400).json({
+            'status': '0',
+            'msg': 'Error al buscar el alumno.'
+        });
+    }
+
+}
+
 module.exports = alumnoCtrl;
