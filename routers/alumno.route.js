@@ -10,6 +10,8 @@ router.get('/:idalumno/rutinas', alumnoCtrl.getRutinasAsignadas);
 router.get('/:idalumno/asistencias', alumnoCtrl.getRutinasConAsistencia);
 router.put('/:idalumno', alumnoCtrl.updateAlumno);
 router.get('/:idalumno',alumnoCtrl.getAlumno);
+router.get('/:idalumno/publicaciones',alumnoCtrl.getPublicaciones);
+router.put('/:idalumno/publicaciones',alumnoCtrl.createPublicacion);
 
 //exportamos el modulo de rutas
 module.exports = router;

@@ -290,4 +290,36 @@ alumnoCtrl.getAlumno = async(req,res) => {
 
 }
 
+alumnoCtrl.getPublicaciones = async(req,res) => {
+    try {
+        const alumno = await Alumno.findById(req.params.idalumno);
+
+        if (!alumno) {
+            return res.status(404).json({ 'status': '0', 'msg': 'No se encontró el alumno.' });
+        }
+
+        res.json({
+            'status': '1',
+            'publicaciones':  alumno.publicaciones,
+            'total': alumno.publicaciones.length
+        });
+
+    } catch (error) {
+        return res.status(400).json({'status': '0', 'msg': 'Error al realizar la operacion:' + error});
+    }
+}
+alumnoCtrl.createPublicacion = async(req,res) => {
+    
+    const publicacion = req.body;
+    try{ 
+        await Alumno.findByIdAndUpdate( req.params.id,{ $push: { publicaciones: publicacion} });
+        res.json({'status': '1', 'msg': 'Se agrego la publicacion.'})
+    } catch (error) {
+        res.status(400).json({
+            'status': '0',
+            'msg': 'Error al agregar la rutina. error-' + error
+        })
+    }
+}
+
 module.exports = alumnoCtrl;
