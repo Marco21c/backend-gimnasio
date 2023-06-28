@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const PlanSchema = require('./plan');
 const RutinaSchema = require('./rutina');
+const PublicacionSchema = require('./publicacion');
+
 const {Schema} = mongoose;
 
 const AlumnoSchema = new Schema({
@@ -20,7 +22,8 @@ const AlumnoSchema = new Schema({
  password:         {type: String, default: "", required: false},
  rol:              {type: String, default: "ALUMNO", required: false},
  plan:             {type: Schema.Types.ObjectId, ref: PlanSchema, required: true},
- rutinas:          [{type: RutinaSchema.schema, default: [], required: false}]
+ rutinas:          [{type: RutinaSchema.schema, default: [], required: false}],
+ publicaciones:    [{type: PublicacionSchema.schema,default: [],required:false}]
 });
 
 module.exports = mongoose.models.Alumno || mongoose.model('Alumno', AlumnoSchema);
