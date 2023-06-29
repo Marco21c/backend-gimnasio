@@ -1,5 +1,6 @@
 const Alumno = require('../models/alumno');
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
 const jwt = require('jsonwebtoken');
 const alumnoCtrl = {}
 
@@ -90,10 +91,26 @@ alumnoCtrl.generarUsuarioClaveParaAlumno = async (req, res) => {
     const { username, password } = req.body;
     try {
         const password_encriptada = await getPasswordEncrypted(password);
-        await Alumno.findByIdAndUpdate(
+        const alumnoActualizado = await Alumno.findByIdAndUpdate(
             req.params.id,
-            { $set: { username: username, password: password_encriptada } }
+            { $set: { username: username, password: password_encriptada } },
+            { new: true }
         );
+
+        // Envia por el correo del usuario las credenciales de acceso
+        const transporter = nodemailer.createTransport({
+            host: "smtp.ethereal.email",
+            port: 587,
+            secure: false,
+            auth: {
+                user: 'victor.wyman@ethereal.email',
+                pass: 'hQ7u6Ee2wkY88zV8et'
+            }
+        });
+        const correoBienvenida = generarCorreoBienvenida(alumnoActualizado, username, password);
+        const info = await transporter.sendMail(correoBienvenida);
+        console.log("Message sent: %s", info.messageId);
+
         res.json({'status': '1', 'msg': 'Se genero usuario y clave para el alumno.'})
     } catch (error) {
         res.status(400).json({
@@ -102,6 +119,76 @@ alumnoCtrl.generarUsuarioClaveParaAlumno = async (req, res) => {
         })
     }
 }
+
+const generarCorreoBienvenida = (alumno, username, password) => {
+    const html = `
+    <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #333;
+      font-size: 30px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    p {
+      color: #555;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+    .highlight {
+      color: #ff6f00;
+      font-weight: bold;
+    }
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #ff6f00;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #ff8f00;
+    }
+  </style>
+
+  <div class="container">
+    <h1>Bienvenido(a) al gimnasio</h1>
+    <p>¡Hola <span class="highlight">${alumno.nombres} ${alumno.apellidos}</span>!</p>
+    <p>Tu cuenta ha sido creada exitosamente. A continuación, te proporcionamos tus credenciales de acceso:</p>
+    <p><strong>Nombre de usuario:</strong> ${username}</p>
+    <p><strong>Contraseña:</strong> ${password}</p>
+    <p>Por favor, guarda esta información de forma segura.</p>
+    <p>Te esperamos en nuestro gimnasio para que puedas comenzar a entrenar y alcanzar tus metas.</p>
+    <p>¡Nos vemos pronto!</p>
+    <p style="text-align: center;">
+      <a href="http://localhost:4200/" target="_blank" class="button">Iniciar sesión</a>
+    </p>
+  </div>
+  `;
+
+    return correo = {
+        from: '"Gym App 👻" <gimnasio_juy@backendG7.com>',
+        to: alumno.email,
+        subject: "¡Bienvenido(a)!",
+        text: "¡Hola! Te damos la bienvenida.",
+        html: html,
+    };
+
+};
 
 /**
  * Permite agregarle una rutina al alumno
@@ -312,7 +399,7 @@ alumnoCtrl.createPublicacion = async(req,res) => {
     
     const publicacion = req.body;
     try{ 
-        await Alumno.findByIdAndUpdate( req.params.id,{ $push: { publicaciones: publicacion} });
+        await Alumno.findByIdAndUpdate( req.params.idalumno,{ $push: { publicaciones: publicacion} });
         res.json({'status': '1', 'msg': 'Se agrego la publicacion.'})
     } catch (error) {
         res.status(400).json({
