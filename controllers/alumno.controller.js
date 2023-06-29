@@ -404,7 +404,7 @@ alumnoCtrl.createPublicacion = async(req,res) => {
     } catch (error) {
         res.status(400).json({
             'status': '0',
-            'msg': 'Error al agregar la rutina. error-' + error
+            'msg': 'Error al agregar la publicacion. error-' + error
         })
     }
 }
