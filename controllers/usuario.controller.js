@@ -17,15 +17,15 @@ usuarioCtrl.loginUsuario = async (req, res)=>{
    const { username, password } = req.body;
    const user = await Usuario.findOne({ username });
    if (!user) {
-     return res.status(404).json({ error: 'Usuario no encontrado' });
+     return res.status(404).json({ status: 0, error: 'Usuario no encontrado' });
    }
    const validar = await bcrypt.compare(password, user.password);
    if (!validar) {
-     return res.status(401).json({ error: 'contraseña Invalida' });
+     return res.status(401).json({ status: 0, error: 'contraseña Invalida' });
    }
-   res.status(200).json({ message: 'Login exitoso'});
+   res.status(200).json({ status: 1, message: 'Login exitoso', user: {id: user._id, username:user.username, rol:user.rol}});
  } catch (error) {
-   res.status(500).json({ error: 'Error en el proceso.' });
+   res.status(500).json({ status: 0, error: 'Error en el proceso.' });
  }
 };
    module.exports= usuarioCtrl;
