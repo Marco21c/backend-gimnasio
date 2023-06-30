@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const PlanSchema = require('./plan');
 const RutinaSchema = require('./rutina');
+const UsuarioSchema = require('./usuario');
 const PublicacionSchema = require('./publicacion');
 
 const {Schema} = mongoose;
@@ -18,8 +19,7 @@ const AlumnoSchema = new Schema({
  pesoInicial:      {type: String, required: false},
  pesoActual:       {type: String, required: false},
  nivelFisico:      {type: String, required: false},
- username:         {type: String, default: "", required: false},
- password:         {type: String, default: "", required: false},
+ user:             {type: Schema.Types.ObjectId, ref: UsuarioSchema, required: false},
  rol:              {type: String, default: "ALUMNO", required: false},
  plan:             {type: Schema.Types.ObjectId, ref: PlanSchema, required: true},
  rutinas:          [{type: RutinaSchema.schema, default: [], required: false}],
