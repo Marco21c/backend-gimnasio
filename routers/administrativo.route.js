@@ -1,9 +1,18 @@
+/**
+ * Primero se importa el framework express.
+ * Se utiliza de express un modulo llamado Router.
+ * Router permite el manejo de las rutas.
+ * Se define las rutas.
+ * Se importalas rutas para que pueda ser utilizado.
+ * @type {{}|{}}
+ */
+const express = require('express');
+const router = express.Router();
 const alumnoCtrl = require('./../controllers/alumno.controller');
 const entrenadorCtrl = require('./../controllers/entrenador.controller');
 const planCtrl = require('./../controllers/plan.controller');
 const insumoCtrl = require('./../controllers/insumo.controller');
-const express = require('express');
-const router = express.Router();
+
 /**
  * Operaciones permitidas para el administrativo:
  * - Registrar alumnos

@@ -1,4 +1,5 @@
 const Insumo = require('../models/insumo');
+const mercadopago = require('mercadopago')
 const insumoCtrl = {};
 
 /**
@@ -10,11 +11,30 @@ const insumoCtrl = {};
 insumoCtrl.createInsumo = async (req, res) => {
     let insumo = new Insumo(req.body);
     try {
+        mercadopago.configure({
+            access_token: 'TEST-777962751549168-070413-5897e9829cf547145a939961f47ee9db-1407364081'
+        });
+
+        const result = await mercadopago.preferences.create({
+            items: [
+                {
+                    title: insumo.nombre,
+                    unit_price: parseFloat(insumo.precio),
+                    currency_id: "ARS",
+                    quantity: insumo.cantidad
+                }
+            ]
+        });
+
         await insumo.save();
+
         res.json({
             'status': '1',
-            'msg': 'El insumo fue registrado con exito.'
-        })
+            'msg': 'El insumo fue registrado con exito.',
+            'date_created': result.body.date_created,
+            'init_point': result.body.init_point,
+        });
+
     } catch (error) {
         res.status(400).json({
             'status': '0',
