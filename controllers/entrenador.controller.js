@@ -1,71 +1,90 @@
 const Entrenador = require('../models/entrenador');
-const bcrypt = require("bcrypt");
-const jwt = require('jsonwebtoken');
+const Alumno = require("../models/alumno");
+const Rutina = require("../models/rutina");
+const Ejercicio = require("../models/ejercicio");
 const entrenadorCtrl = {};
 
 /**
- * Permite encriptar una contraseña pasada por parametro
- * @param password
- * @returns {Promise<void|*>}
- */
-async function getPasswordEncrypted(password) {
-    const salt = await bcrypt.genSalt(10);
-    return await bcrypt.hash(password, salt);
-}
-
-entrenadorCtrl.loginEntrenador = async (req, res)=>{
-    try {
-        const { username, password } = req.body;
-        const entrenador = await Entrenador.findOne({ username });
-
-        if (!entrenador) {
-            return res.status(401).json({ error: 'No se encontró ningún entrenador con el nombre de usuario especificado.' });
-        }
-
-        const validarPassword = await bcrypt.compare(password, entrenador.password);
-
-        if (!validarPassword) {
-            return res.status(401).json({ error: 'Credenciales de inicio de sesión inválidas' });
-        }
-
-        const unToken = jwt.sign({id: entrenador._id, rol: entrenador.rol}, "secretkey");
-
-        res.status(200).json({
-            message: 'Inicio de sesión exitoso',
-            username: entrenador.username,
-            rol: entrenador.rol,
-            userid: entrenador._id,
-            token: unToken
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'Error en el proceso.' });
-    }
-};
-
-
-/**
- * Permite registrar un entrenador del gym.
+ * Permite agregarle una rutina al alumno
  * @param req
  * @param res
  * @returns {Promise<void>}
  */
-entrenadorCtrl.createEntrenador = async (req, res) => {
-    const { password } = req.body;
-    const password_encriptada = await getPasswordEncrypted(password);
-    let entrenador = new Entrenador(req.body);
-    entrenador.password = password_encriptada;
+entrenadorCtrl.agregarRutinaAlAlumno = async (req, res) => {
+    if (req.userRol !== 'ENTRENADOR') {
+        return res.status(403).json({'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.'});
+    }
+
+    const rutina = req.body;
+    const idAlumno = req.params.idalumno;
+    const idEntrenador = req.params.identrenador;
 
     try {
-        await entrenador.save();
-        res.json({
-            'status': '1',
-            'msg': 'El entrenador fue registrado con exito.'
-        })
+        let entrenador = await Entrenador.findById(idEntrenador);
+        let alumno = await Alumno.findById(idAlumno);
+
+        if (!entrenador) {
+            return res.status(404).json({'status': '0', 'msg': 'No se encontró el entrenador.'});
+        }
+
+        if (!alumno) {
+            return res.status(404).json({'status': '0', 'msg': 'No se encontró el alumno.'});
+        }
+
+        rutina.entrenador = entrenador;
+        let rut = new Rutina(rutina);
+        await rut.save();
+
+        await Alumno.findByIdAndUpdate(
+            idAlumno,
+            {$push: {rutinas: rutina}}
+        );
+
+        res.json({'status': '1', 'msg': 'Se agrego la rutina al alumno.'});
+
+    } catch (error) {
+
+        res.status(400).json({
+            'status': '0',
+            'msg': 'Error al agregar la rutina. error-' + error
+        });
+
+    }
+}
+
+/**
+ * Permite agregar ejercicio a una rutina
+ * @param req
+ * @param res
+ * @returns {Promise<*>}
+ */
+entrenadorCtrl.agregarEjerciciosARutina = async (req, res) => {
+
+    if (req.userRol !== 'ENTRENADOR') {
+        return res.status(403).json({'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.'});
+    }
+
+    try {
+        const id = req.params.idrutina;
+        let rutina = await Rutina.findById(id);
+
+        if (!rutina) {
+            return res.status(404).json({'status': '0', 'msg': 'No se encontró la rutina.'});
+        }
+
+        let ejercicio = new Ejercicio(req.body);
+        await ejercicio.save();
+
+        await Rutina.findByIdAndUpdate(
+            id,
+            {$push: {ejercicios: ejercicio}}
+        );
+        res.json({'status': '1', 'msg': 'Se agrego el ejercicio a la rutina.'});
     } catch (error) {
         res.status(400).json({
             'status': '0',
-            'msg': 'Error al registrar el entrenador. Error-'+ error
-        })
+            'msg': 'Error al agregar el ejercicio. error-' + error
+        });
     }
 }
 
@@ -76,8 +95,36 @@ entrenadorCtrl.createEntrenador = async (req, res) => {
  * @returns {Promise<void>}
  */
 entrenadorCtrl.getEntrenadores = async (req, res) => {
-    let entrenadores = await Entrenador.find();
+    let entrenadores = await Entrenador.find().populate('user');
     res.json(entrenadores);
+}
+
+/**
+ * Permite devolver los ejercicios registrados.
+ * @param req
+ * @param res
+ * @returns {Promise<*>}
+ */
+entrenadorCtrl.getEjercicios = async (req, res) => {
+
+    if (req.userRol !== 'ENTRENADOR') {
+        return res.status(403).json({'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.'});
+    }
+
+    try {
+        let ejercicios = await Ejercicio.find();
+
+        res.json({
+            'status': '1',
+            'msg': 'Ejercicios registrados',
+            'ejercicios': ejercicios
+        });
+    } catch (error) {
+        res.status(400).json({
+            'status': '0',
+            'msg': 'Error al devolver los ejercicios. Error-' + error
+        });
+    }
 }
 
 module.exports = entrenadorCtrl;

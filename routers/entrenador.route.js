@@ -1,15 +1,37 @@
-const alumnoCtrl = require('./../controllers/alumno.controller');
 const entrenadorCtrl = require('./../controllers/entrenador.controller');
 const autCtrl = require('./../controllers/auth.controller');
 const express = require('express');
 const router = express.Router();
 
 /**
- * El entrenador  puede
- * - generar rutinas para alumnos
+ * Agregar rutina a un alumno
+ *
+ * @route PUT /:identrenador/alumnos/:idalumno/rutina
+ * @group Entrenador
+ * @param {string} identrenador.path.required - ID del entrenador
+ * @param {string} idalumno.path.required - ID del alumno
  */
-router.post('/login', entrenadorCtrl.loginEntrenador);
-router.put('/alumnos/:id/rutina', autCtrl.verifyToken, alumnoCtrl.agregarRutina);
+router.put('/:identrenador/alumnos/:idalumno/rutina', autCtrl.verifyToken, entrenadorCtrl.agregarRutinaAlAlumno);
+
+/**
+ * Agregar ejercicios a una rutina
+ *
+ * @route PUT /rutinas/:idrutina/ejercicio/registrar
+ * @group Entrenador
+ * @param {string} idrutina.path.required - ID de la rutina
+ */
+router.put('/rutinas/:idrutina/ejercicio/registrar', autCtrl.verifyToken, entrenadorCtrl.agregarEjerciciosARutina);
+
+/**
+ * Obtener la lista de ejercicios
+ *
+ * @route GET /ejercicios
+ * @group Entrenador - Operaciones del entrenador
+ * @returns {object} 200 - Lista de ejercicios
+ * @security JWT
+ * @returns {Error} 401 - Acceso no autorizado
+ */
+router.get('/ejercicios', autCtrl.verifyToken, entrenadorCtrl.getEjercicios);
 
 //exportamos el modulo de rutas
 module.exports = router;

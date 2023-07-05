@@ -16,21 +16,40 @@ const insumoCtrl = require('./../controllers/insumo.controller');
 const autCtrl = require("../controllers/auth.controller");
 
 /**
- * Operaciones permitidas para el administrativo:
- * - Registrar alumnos
- * - Generar usuario y clave para alumnos
- * - Publicar anuncios
- * - Registrar insumos
- * - Registrar Pagos
+ * Enviar usuario y clave al alumno
+ *
+ * @route POST /alumno/:id
+ * @group Administrativo
+ * @param {string} id.path.required - ID del alumno
  */
-// router.post('/alumno/registro', alumnoCtrl.createAlumno);
-// router.post('/entrenador/registro', entrenadorCtrl.createEntrenador);
-router.post('/alumno/registro',autCtrl.verifyToken,  administrativoCtrl.createAlumno);
 router.post('/alumno/:id', autCtrl.verifyToken, administrativoCtrl.enviarUsuarioClaveParaAlumno);
+
+/**
+ * Registrar un nuevo insumo
+ *
+ * @route POST /insumo/registro
+ * @group Administrativo
+ */
+router.post('/insumo/registro', autCtrl.verifyToken, administrativoCtrl.createInsumo);
+
+/**
+ * Crear un nuevo plan
+ *
+ * @route POST /plan/registro
+ * @group Plan
+ */
+router.post('/plan/registro', planCtrl.createPlan);
+
+
+router.delete('/alumnos/:id', autCtrl.verifyToken, administrativoCtrl.eliminarAlumno);
+// TODO: FALTA TERMINAR (borrados)
+// router.delete('/entrenadores/:id', autCtrl.verifyToken, administrativoCtrl.eliminarEntrenador);
+// router.delete('/insumos/:id', autCtrl.verifyToken, administrativoCtrl.eliminarInsumo);
+// router.delete('/planes/:id', autCtrl.verifyToken, administrativoCtrl.eliminarPlan);
+
+// TODO: VER..
 router.get('/alumnos', alumnoCtrl.getAlumnos);
 router.get('/entrenadores', entrenadorCtrl.getEntrenadores);
-router.post('/plan/registro', planCtrl.createPlan);
-router.post('/insumo/registro', insumoCtrl.createInsumo);
 router.get('/insumos', insumoCtrl.getInsumos);
 
 module.exports = router;
