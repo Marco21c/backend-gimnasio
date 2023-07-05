@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 const {Schema} = mongoose;
-const UsuarioSchema = require("./usuario");
+const UsuarioSchema = require('./usuario');
 
-const EntrenadorSchema = new Schema({
+const AdministrativoSchema = new Schema({
     fotoPerfil:       {type: String, required: false},
     user:             {type: Schema.Types.ObjectId, ref: UsuarioSchema, required: true},
 });
 
-module.exports = mongoose.models.Entrenador || mongoose.model('Entrenador', EntrenadorSchema);
+module.exports = mongoose.models.Administrativo || mongoose.model('Administrativo', AdministrativoSchema);

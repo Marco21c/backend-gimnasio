@@ -9,9 +9,11 @@
 const express = require('express');
 const router = express.Router();
 const alumnoCtrl = require('./../controllers/alumno.controller');
+const administrativoCtrl = require('./../controllers/administrativo.controller');
 const entrenadorCtrl = require('./../controllers/entrenador.controller');
 const planCtrl = require('./../controllers/plan.controller');
 const insumoCtrl = require('./../controllers/insumo.controller');
+const autCtrl = require("../controllers/auth.controller");
 
 /**
  * Operaciones permitidas para el administrativo:
@@ -21,9 +23,10 @@ const insumoCtrl = require('./../controllers/insumo.controller');
  * - Registrar insumos
  * - Registrar Pagos
  */
-router.post('/alumno/registro', alumnoCtrl.createAlumno);
-router.post('/entrenador/registro', entrenadorCtrl.createEntrenador);
-router.put('/alumno/:id', alumnoCtrl.generarUsuarioClaveParaAlumno);
+// router.post('/alumno/registro', alumnoCtrl.createAlumno);
+// router.post('/entrenador/registro', entrenadorCtrl.createEntrenador);
+router.post('/alumno/registro',autCtrl.verifyToken,  administrativoCtrl.createAlumno);
+router.post('/alumno/:id', autCtrl.verifyToken, administrativoCtrl.enviarUsuarioClaveParaAlumno);
 router.get('/alumnos', alumnoCtrl.getAlumnos);
 router.get('/entrenadores', entrenadorCtrl.getEntrenadores);
 router.post('/plan/registro', planCtrl.createPlan);

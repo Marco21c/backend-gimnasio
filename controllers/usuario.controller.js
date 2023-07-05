@@ -1,32 +1,191 @@
-const Usuario = require ('./../models/usuario')
-const usuarioCtrl = {}
+/**
+ Importa los modelos de usuario y los diferentes roles (Administrativo, Entrenador, Encargado, Alumno).
+ Importa los módulos bcrypt y jwt para el manejo de contraseñas y generación de tokens.
+ Crea un objeto vacío llamado usuarioCtrl que se utilizará para almacenar las funciones del controlador.
+ @module usuarioCtrl
+ */
+const Usuario = require('./../models/usuario')
+const Administrativo = require('../models/administrativo');
+const Entrenador = require('../models/entrenador');
+const Encargado = require('../models/encargado');
+const Alumno = require('../models/alumno');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const usuarioCtrl = {};
 
-usuarioCtrl.createUsuario = async (req, res)=>{
-   try {
-      const { username, password,rol } = req.body;
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await Usuario.create({ username, password: hashedPassword,rol});
-      res.status(201).json({ message: 'Usuario Creado Con Exito', user });
+/**
+ Encripta la contraseña proporcionada utilizando bcrypt.
+ @param {string} password - Contraseña a encriptar.
+ @returns {Promise<string>} - Promesa que resuelve en la contraseña encriptada.
+ */
+async function getPasswordEncrypted(password) {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
+}
+
+/**
+ Crea un nuevo usuario con los datos proporcionados.
+ Requiere que el rol del usuario actual sea 'ADMINISTRATIVO' para acceder a este endpoint.
+ @param {Object} req - Objeto de solicitud.
+ @param {Object} res - Objeto de respuesta.
+ @returns {Object} - Objeto JSON que indica el estado de la operación y un mensaje descriptivo.
+ @throws {Object} - Objeto JSON que indica un error en caso de que ocurra algún problema durante el registro.
+ */
+usuarioCtrl.createUsuario = async (req, res) => {
+
+    if (req.userRol !== 'ADMINISTRATIVO') {
+        return res.status(403).json({ 'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.' });
+    }
+
+    const { password, rol } = req.body;
+    const password_encriptada = await getPasswordEncrypted(password);
+    let usuario = new Usuario(req.body);
+    usuario.password = password_encriptada;
+
+    if (rol !== "ADMINISTRATIVO" && rol !== "ENTRENADOR" && rol !== "ENCARGADO" && rol !== "ALUMNO") {
+        return res.status(400).json({
+            status: '0',
+            msg: 'El rol especificado es incorrecto.'
+        });
+    }
+
+    try {
+        let usuarioGuardado = await usuario.save();
+        let model;
+        let successMessage;
+
+        switch (rol) {
+            case "ADMINISTRATIVO":
+                model = Administrativo;
+                successMessage = "El administrativo fue registrado con éxito.";
+                break;
+            case "ENTRENADOR":
+                model = Entrenador;
+                successMessage = "El entrenador fue registrado con éxito.";
+                break;
+            case "ENCARGADO":
+                model = Encargado;
+                successMessage = "El encargado fue registrado con éxito.";
+                break;
+            case "ALUMNO":
+                model = Alumno;
+                successMessage = "El alumno fue registrado con éxito.";
+                break;
+        }
+
+        if (model) {
+            let registro = new model({ user: usuarioGuardado._id });
+            await registro.save();
+            return res.json({ status: '1', msg: successMessage });
+        } else {
+            return res.status(400).json({
+                status: '0',
+                msg: 'Error al registrar el usuario. Rol no válido.'
+            });
+        }
     } catch (error) {
-      res.status(500).json({ error: 'Error en el proceso.' });
+        return res.status(400).json({
+            status: '0',
+            msg: 'Error al registrar el usuario. Error-' + error
+        });
     }
 }
-usuarioCtrl.loginUsuario = async (req, res)=>{
- try {
-   const { username, password } = req.body;
-   const user = await Usuario.findOne({ username });
-   if (!user) {
-     return res.status(404).json({ status: 0, error: 'Usuario no encontrado' });
-   }
-   const validar = await bcrypt.compare(password, user.password);
-   if (!validar) {
-     return res.status(401).json({ status: 0, error: 'contraseña Invalida' });
-   }
-   res.status(200).json({ status: 1, message: 'Login exitoso', user: {id: user._id, username:user.username, rol:user.rol}});
- } catch (error) {
-   res.status(500).json({ status: 0, error: 'Error en el proceso.' });
- }
+
+/**
+ Realiza el inicio de sesión del usuario con las credenciales proporcionadas.
+ @param {Object} req - Objeto de solicitud.
+ @param {Object} res - Objeto de respuesta.
+ @returns {Object} - Objeto JSON que contiene el estado del inicio de sesión, información del usuario y un token de acceso.
+ @throws {Object} - Objeto JSON que indica un error en caso de que ocurra algún problema durante el inicio de sesión.
+ */
+usuarioCtrl.loginUsuario = async (req, res) => {
+    const { username, password } = req.body;
+    let userid;
+    let model;
+
+    try {
+        const user = await Usuario.findOne({ username });
+
+        if (!user) {
+            return res.status(401).json({ error: 'No se encontró ningún registro con el nombre de usuario especificado.' });
+        }
+
+        const passwordCorrecta = await bcrypt.compare(password, user.password);
+
+        if (!passwordCorrecta) {
+            return res.status(401).json({ error: 'Credenciales de inicio de sesión inválidas' });
+        }
+
+        switch (user.rol) {
+            case "ADMINISTRATIVO":
+                model = Administrativo;
+                break;
+            case "ENTRENADOR":
+                model = Entrenador;
+                break;
+            case "ENCARGADO":
+                model = Encargado;
+                break;
+            case "ALUMNO":
+                model = Alumno;
+                break;
+        }
+
+        const usuarioRegistrado = await model.findOne({user: user._id}).populate('user');
+
+        if (usuarioRegistrado) {
+            userid = usuarioRegistrado._id;
+        } else {
+            console.log(`No se encontró ningún ${user.rol.toLowerCase()} con el nombre de usuario especificado.`);
+        }
+
+        const tokenEnviado = jwt.sign({ id: userid, rol: user.rol }, "secretkey");
+
+        res.status(200).json({
+            message: 'Inicio de sesión exitoso',
+            username: user.username,
+            rol: user.rol,
+            userid: userid,
+            token: tokenEnviado
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            status: 0,
+            error: 'Error en el login. Error-' + error
+        });
+    }
 };
-   module.exports= usuarioCtrl;
+
+/**
+ * Obtener usuario por ID
+ *
+ * @route GET /ruta/:id
+ * @param {string} id.path.required - ID del usuario a obtener
+ * @group Usuario - Operaciones relacionadas con usuarios
+ * @returns {Usuario.model} 200 - Usuario encontrado
+ * @returns {Error} 404 - No se encontró el usuario
+ * @returns {Error} 400 - Error al buscar el usuario
+ */
+usuarioCtrl.getUsuario = async(req,res) => {
+    try{
+        const usuario = await Usuario.findById(req.params.id);
+
+        if (!usuario) {
+            return res.status(404).json({
+                'status': '0',
+                'msg': 'No se encontró el usuario.'
+            });
+        }
+
+        res.status(200).json(usuario);
+    }catch(error){
+        res.status(400).json({
+            'status': '0',
+            'msg': 'Error al buscar el usuario.'
+        });
+    }
+}
+
+module.exports = usuarioCtrl;
    

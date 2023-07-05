@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const {Schema} = mongoose;
-const UsuarioSchema = require("./usuario");
+const UsuarioSchema = require('./usuario');
 
 const EntrenadorSchema = new Schema({
     fotoPerfil:       {type: String, required: false},
