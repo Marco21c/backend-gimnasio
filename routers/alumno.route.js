@@ -4,6 +4,8 @@ const alumnoCtrl = require('./../controllers/alumno.controller');
 const express = require('express');
 const router = express.Router();
 
+router.get('/', alumnoCtrl.getAlumnos);
+router.get('/:idalumno', alumnoCtrl.getAlumno);
 router.put('/:idalumno/rutinas/:idrutina/asistencia', alumnoCtrl.registrarAsistencia);
 router.get('/:idalumno/rutinas', alumnoCtrl.getRutinasAsignadas);
 router.get('/:idalumno/asistencias', alumnoCtrl.getRutinasConAsistencia);

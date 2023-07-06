@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
 const Alumno = require('../models/alumno');
 const Insumo = require("../models/insumo");
+const Usuario = require('../models/usuario');
 const mercadopago = require("mercadopago");
 const administrativoCtrl = {};
 
@@ -169,11 +170,10 @@ administrativoCtrl.eliminarAlumno = async (req, res) => {
     if (req.userRol !== 'ADMINISTRATIVO') {
         return res.status(403).json({ 'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.' });
     }
-
     try {
         const alumno = await Alumno.findById(req.params.id);
-        await Usuario.findByIdAndDelete(alumno.user);
-        await Alumno.findByIdAndDelete(alumno._id);
+        await Usuario.deleteOne({_id: alumno.user});
+        await Alumno.deleteOne(alumno._id);       
 
         res.json({
             status: '1',

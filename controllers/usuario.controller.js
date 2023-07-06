@@ -36,8 +36,13 @@ usuarioCtrl.createUsuario = async (req, res) => {
     if (req.userRol !== 'ADMINISTRATIVO') {
         return res.status(403).json({ 'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.' });
     }
+    const {username, password, rol } = req.body;
 
-    const { password, rol } = req.body;
+    let usuarioBD = await Usuario.findOne({ username: username });
+    if (usuarioBD !== null) {
+      return res.status(400).json({ 'status': '0', 'msg': 'Ya existe ese username.' });
+    }
+
     const password_encriptada = await getPasswordEncrypted(password);
     let usuario = new Usuario(req.body);
     usuario.password = password_encriptada;
@@ -74,7 +79,20 @@ usuarioCtrl.createUsuario = async (req, res) => {
         }
 
         if (model) {
-            let registro = new model({ user: usuarioGuardado._id });
+            let registro;
+            if(rol == "ALUMNO") 
+              registro = new model({  user: usuarioGuardado._id , nombres: req.body.nombres, apellidos: req.body.apellidos, 
+                                      dni: req.body.dni, fechaNacimiento: req.body.fechaNacimiento,
+                                      celular: req.body.celular, domicilio: req.body.domicilio,
+                                      email: req.body.email,
+                                      fechaInscripcion:req.body.fechaInscripcion,
+                                      fotoPerfil: req.body.fotoPerfil,
+                                      pesoInicial: req.body.pesoInicial,
+                                      pesoActual: req.body.pesoActual,
+                                      nivelFisico: req.body.nivelFisico,
+                                      plan: req.body.plan});
+            else
+              registro = new model({ user: usuarioGuardado._id , nombres: req.body.nombres, apellidos: req.body.apellidos});
             await registro.save();
             return res.json({ status: '1', msg: successMessage });
         } else {
@@ -107,13 +125,13 @@ usuarioCtrl.loginUsuario = async (req, res) => {
         const user = await Usuario.findOne({ username });
 
         if (!user) {
-            return res.status(401).json({ error: 'No se encontró ningún registro con el nombre de usuario especificado.' });
+            return res.status(401).json({status: 0, error: 'No se encontró ningún registro con el nombre de usuario especificado.' });
         }
 
         const passwordCorrecta = await bcrypt.compare(password, user.password);
 
         if (!passwordCorrecta) {
-            return res.status(401).json({ error: 'Credenciales de inicio de sesión inválidas' });
+            return res.status(401).json({status: 0, error: 'Credenciales de inicio de sesión inválidas' });
         }
 
         switch (user.rol) {
@@ -142,6 +160,7 @@ usuarioCtrl.loginUsuario = async (req, res) => {
         const tokenEnviado = jwt.sign({ id: userid, rol: user.rol }, "secretkey");
 
         res.status(200).json({
+            status: 1,
             message: 'Inicio de sesión exitoso',
             username: user.username,
             rol: user.rol,
