@@ -33,5 +33,11 @@ router.put('/rutinas/:idrutina/ejercicio/registrar', autCtrl.verifyToken, entren
  */
 router.get('/ejercicios', autCtrl.verifyToken, entrenadorCtrl.getEjercicios);
 
+/**
+ * Registrar un ejercicio
+ * 
+ */
+router.post('/ejercicios', autCtrl.verifyToken, entrenadorCtrl.createEjercicios);
+
 //exportamos el modulo de rutas
 module.exports = router;

@@ -127,4 +127,20 @@ entrenadorCtrl.getEjercicios = async (req, res) => {
     }
 }
 
+entrenadorCtrl.createEjercicios = async (req, res) => {
+    let ejercicio = new Ejercicio(req.body);
+    try {
+        await ejercicio.save();
+        res.json({
+            'status': '1',
+            'msg': 'Ejercicio creado'
+        })
+    } catch (error) {
+        res.status(400).json({
+            'status': '0',
+            'msg': 'error al crear ejercicio'
+        })
+    }
+}
+
 module.exports = entrenadorCtrl;
