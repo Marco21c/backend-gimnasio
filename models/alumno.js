@@ -7,7 +7,14 @@ const PublicacionSchema = require('./publicacion');
 const {Schema} = mongoose;
 
 const AlumnoSchema = new Schema({
-    fechaInscripcion: {type: Date, default: Date.now, required: false},
+    nombres:          {type: String, required: true},
+    apellidos:        {type: String, required: true},
+    dni:              {type: String, required: true},
+    fechaInscripcion: {type: String, required: true},
+    fechaNacimiento:  {type: String, required: false},
+    celular:          {type: String, required: false},
+    domicilio:        {type: String, required: false},
+    email:            {type: String, required: true},
     fotoPerfil:       {type: String, required: false},
     pesoInicial:      {type: String, required: false},
     pesoActual:       {type: String, required: false},

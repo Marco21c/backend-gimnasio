@@ -51,5 +51,6 @@ router.delete('/alumnos/:id', autCtrl.verifyToken, administrativoCtrl.eliminarAl
 router.get('/alumnos', alumnoCtrl.getAlumnos);
 router.get('/entrenadores', entrenadorCtrl.getEntrenadores);
 router.get('/insumos', insumoCtrl.getInsumos);
+router.get('/planes', planCtrl.getPlanes);
 
 module.exports = router;
