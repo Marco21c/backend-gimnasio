@@ -1,8 +1,9 @@
 const nodemailer = require("nodemailer");
-const Alumno = require('../models/alumno');
+const Alumno = require("../models/alumno");
 const Insumo = require("../models/insumo");
-const Usuario = require('../models/usuario');
+const Usuario = require("../models/usuario");
 const mercadopago = require("mercadopago");
+const { checkout } = require("../routers/alumno.route");
 const administrativoCtrl = {};
 
 /**
@@ -12,41 +13,83 @@ const administrativoCtrl = {};
  * @returns {Promise<void>}
  */
 administrativoCtrl.createInsumo = async (req, res) => {
+  if (req.userRol !== "ADMINISTRATIVO") {
+    return res.status(403).json({
+      status: "0",
+      msg: "Acceso denegado. No tienes permisos suficientes.",
+    });
+  }
 
-    if (req.userRol !== 'ADMINISTRATIVO') {
-        return res.status(403).json({'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.'});
-    }
+  var insumo = new Insumo(req.body);
+  console.log(insumo);
+  try {
+    await insumo.save();
+    res.json({
+      status: "1",
+      msg: "Insumo guardado.",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "0",
+      msg: "Error procesando operacion.",
+    });
+  }
+};
 
-    try {
-        let insumo = new Insumo(req.body);
-        mercadopago.configure({
-            access_token: 'TEST-777962751549168-070413-5897e9829cf547145a939961f47ee9db-1407364081'
-        });
+administrativoCtrl.checkout = async (req, res) => {
+  if (req.userRol !== "ADMINISTRATIVO") {
+    return res.status(403).json({
+      status: "0",
+      msg: "Acceso denegado. No tienes permisos suficientes.",
+    });
+  }
 
-        const result = await mercadopago.preferences.create({
-            items: [{
-                title: insumo.nombre,
-                unit_price: parseFloat(insumo.precio),
-                currency_id: "ARS",
-                quantity: insumo.cantidad
-            }]
-        });
+  try {
+    const insumos = req.body; // Array de Insumo
 
-        await insumo.save();
+    const items = insumos.map((insumo) => {
+      return {
+        title: insumo.nombre,
+        unit_price: parseFloat(insumo.precio),
+        currency_id: "ARS",
+        quantity: 1,
+      };
+    });
 
-        res.json({
-            'status': '1',
-            'msg': 'El insumo fue registrado con exito.',
-            'date_created': result.body.date_created,
-            'init_point': result.body.init_point,
-        });
+    mercadopago.configure({
+      access_token:
+        "TEST-777962751549168-070413-5897e9829cf547145a939961f47ee9db-1407364081",
+    });
 
-    } catch (error) {
-        res.status(400).json({
-            'status': '0', 'msg': 'Error al registrar el insumo. Error-' + error
-        })
-    }
-}
+    const result = await mercadopago.preferences.create({
+      items: items,
+    });
+
+    //Actualizo cantidad en BD
+    insumos.forEach(async (insumoParam) => {
+      try {
+        const insumoBD = await Insumo.findById(insumoParam._id);
+        if (insumoBD) {
+          insumoBD.cantidad--;
+          await insumoBD.save();
+        }
+      } catch (error) {
+        console.log("Error al actualizar la cantidad del insumo:", error);
+      }
+    });
+
+    res.json({
+      status: "1",
+      date_created: result.body.date_created,
+      init_point: result.body.init_point,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "0",
+      msg: "Error procesando operacion.",
+    });
+  }
+};
 
 /**
  * Enviar usuario y clave al alumno
@@ -59,37 +102,41 @@ administrativoCtrl.createInsumo = async (req, res) => {
  * @returns {Error} 403 - Acceso denegado
  */
 administrativoCtrl.enviarUsuarioClaveParaAlumno = async (req, res) => {
+  if (req.userRol !== "ADMINISTRATIVO") {
+    return res.status(403).json({
+      status: "0",
+      msg: "Acceso denegado. No tienes permisos suficientes.",
+    });
+  }
 
-    if (req.userRol !== 'ADMINISTRATIVO') {
-        return res.status(403).json({ 'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.' });
-    }
+  try {
+    const alumno = await Alumno.findById(req.params.id).populate("user");
 
-    try {
-        const alumno = await Alumno.findById(req.params.id).populate('user');
+    // Envia por el correo del usuario las credenciales de acceso
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "fetchdata03@gmail.com",
+        pass: "ugvoexamfmdmldoi",
+      },
+    });
 
-        // Envia por el correo del usuario las credenciales de acceso
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-                user: 'fetchdata03@gmail.com',
-                pass: 'ugvoexamfmdmldoi'
-            }
-        });
-
-        const correoBienvenida = generarCorreoBienvenida(alumno);
-        const infoCorreoEnviado = await transporter.sendMail(correoBienvenida);
-        console.log("Message sent: %s", infoCorreoEnviado.messageId);
-        res.json({
-            'status': '1', 'msg': 'Se enviaron las credenciales de acceso al alumno.'
-        });
-    } catch (error) {
-        res.status(400).json({
-            'status': '0', 'msg': 'Error al enviar las credenciales. Error-' + error
-        });
-    }
-}
+    const correoBienvenida = generarCorreoBienvenida(alumno);
+    const infoCorreoEnviado = await transporter.sendMail(correoBienvenida);
+    console.log("Message sent: %s", infoCorreoEnviado.messageId);
+    res.json({
+      status: "1",
+      msg: "Se enviaron las credenciales de acceso al alumno.",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "0",
+      msg: "Error al enviar las credenciales. Error-" + error,
+    });
+  }
+};
 
 /**
  * Generar correo de bienvenida para el alumno
@@ -98,7 +145,7 @@ administrativoCtrl.enviarUsuarioClaveParaAlumno = async (req, res) => {
  * @returns {object} - Objeto de correo de bienvenida
  */
 const generarCorreoBienvenida = (usuario) => {
-    const html = `
+  const html = `
     <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -157,54 +204,64 @@ const generarCorreoBienvenida = (usuario) => {
   </div>
   `;
 
-    return correo = {
-        from: "fetchdata03@gmail.com",
-        to: usuario.user.email,
-        subject: "¡Bienvenido(a)!",
-        text: "¡Hola! Te damos la bienvenida.",
-        html: html,
-    };
+  return (correo = {
+    from: "fetchdata03@gmail.com",
+    to: usuario.user.email,
+    subject: "¡Bienvenido(a)!",
+    text: "¡Hola! Te damos la bienvenida.",
+    html: html,
+  });
 };
 
 administrativoCtrl.eliminarAlumno = async (req, res) => {
-    if (req.userRol !== 'ADMINISTRATIVO') {
-        return res.status(403).json({ 'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.' });
-    }
-    try {
-        const alumno = await Alumno.findById(req.params.id);
-        await Usuario.deleteOne({_id: alumno.user});
-        await Alumno.deleteOne(alumno._id);       
+  if (req.userRol !== "ADMINISTRATIVO") {
+    return res.status(403).json({
+      status: "0",
+      msg: "Acceso denegado. No tienes permisos suficientes.",
+    });
+  }
+  try {
+    const alumno = await Alumno.findById(req.params.id);
+    await Usuario.deleteOne({ _id: alumno.user });
+    await Alumno.deleteOne(alumno._id);
 
-        res.json({
-            status: '1',
-            msg: 'Alumno eliminado correctamente.'
-        });
-
-    } catch (error) {
-        res.status(400).json({'status': '0', 'msg': 'Error processing operation.'})
-    }
-}
+    res.json({
+      status: "1",
+      msg: "Alumno eliminado correctamente.",
+    });
+  } catch (error) {
+    res.status(400).json({ status: "0", msg: "Error processing operation." });
+  }
+};
 
 administrativoCtrl.eliminarEntrenador = async (req, res) => {
-    if (req.userRol !== 'ADMINISTRATIVO') {
-        return res.status(403).json({ 'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.' });
-    }
-    // TODO
-}
+  if (req.userRol !== "ADMINISTRATIVO") {
+    return res.status(403).json({
+      status: "0",
+      msg: "Acceso denegado. No tienes permisos suficientes.",
+    });
+  }
+  // TODO
+};
 
 administrativoCtrl.eliminarPlan = async (req, res) => {
-    if (req.userRol !== 'ADMINISTRATIVO') {
-        return res.status(403).json({ 'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.' });
-    }
-    // TODO
-}
+  if (req.userRol !== "ADMINISTRATIVO") {
+    return res.status(403).json({
+      status: "0",
+      msg: "Acceso denegado. No tienes permisos suficientes.",
+    });
+  }
+  // TODO
+};
 
 administrativoCtrl.eliminarInsumo = async (req, res) => {
-    if (req.userRol !== 'ADMINISTRATIVO') {
-        return res.status(403).json({ 'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.' });
-    }
-    // TODO
-}
-
+  if (req.userRol !== "ADMINISTRATIVO") {
+    return res.status(403).json({
+      status: "0",
+      msg: "Acceso denegado. No tienes permisos suficientes.",
+    });
+  }
+  // TODO
+};
 
 module.exports = administrativoCtrl;

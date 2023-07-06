@@ -11,6 +11,7 @@ const insumoCtrl = {};
 insumoCtrl.createInsumo = async (req, res) => {
     let insumo = new Insumo(req.body);
     try {
+
         mercadopago.configure({
             access_token: 'TEST-777962751549168-070413-5897e9829cf547145a939961f47ee9db-1407364081'
         });
@@ -25,8 +26,6 @@ insumoCtrl.createInsumo = async (req, res) => {
                 }
             ]
         });
-
-        await insumo.save();
 
         res.json({
             'status': '1',
@@ -53,5 +52,20 @@ insumoCtrl.getInsumos = async (req, res) => {
     let insumos = await Insumo.find();
     res.json(insumos);
 }
+
+insumoCtrl.deleteInsumo = async (req, res) => {
+    try {
+      await Insumo.deleteOne({ _id: req.params.id });
+      res.json({
+        status: "1",
+        msg: "Insumo removed",
+      });
+    } catch (error) {
+      res.status(400).json({
+        status: "0",
+        msg: "Error procesando la operacion",
+      });
+    }
+  };
 
 module.exports = insumoCtrl;
