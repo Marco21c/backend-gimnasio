@@ -93,8 +93,8 @@ usuarioCtrl.createUsuario = async (req, res) => {
                                       plan: req.body.plan});
             else
               registro = new model({ user: usuarioGuardado._id , nombres: req.body.nombres, apellidos: req.body.apellidos});
-            await registro.save();
-            return res.json({ status: '1', msg: successMessage });
+            var reg = await registro.save();
+            return res.json({ status: '1', msg: successMessage, userId: reg._id});
         } else {
             return res.status(400).json({
                 status: '0',

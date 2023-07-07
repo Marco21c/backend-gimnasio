@@ -11,5 +11,6 @@ router.put('/:id', pagoCtrl.editPago);
 router.delete('/:id', pagoCtrl.deletePago);
 router.get('/filtro/:tipo', pagoCtrl.getPagosTipo);
 router.post('/checkout/plan', pagoCtrl.checkoutPlan);
+router.get('/plan/activo', pagoCtrl.getPagoPlanesActivos);
 //exportamos el modulo de rutas
 module.exports = router;

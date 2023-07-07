@@ -12,10 +12,10 @@ pagoCtrl.getPagos = async (req, res) => {
 pagoCtrl.getPagosTipo = async (req, res) => {
   const tipo = req.params.tipo;
   if (tipo == "plan") {
-    var pagos = await Pago.find({ plan: { $exists: true } }).populate("alumno").populate("plan");;
+    var pagos = await Pago.find({ plan: { $exists: true } }).populate("alumno").populate("plan");
   } else {
     if (tipo == "insumo") {
-      var pagos = await Pago.find({ insumos: { $ne: [] } });
+      var pagos = await Pago.find({ insumos: { $ne: [] } }).populate("insumos");
     } else {
       res.json({
         status: "0",
@@ -26,23 +26,23 @@ pagoCtrl.getPagosTipo = async (req, res) => {
   res.json(pagos);
 };
 
-pagoCtrl.getPagosActivos = async (req, res) => {
-  /*
+pagoCtrl.getPagoPlanesActivos = async (req, res) => {
+  const fechaActual = new Date();
+  const ultimoMes = new Date();
+  ultimoMes.setDate(fechaActual.getDate() - 30);
+  console.log(ultimoMes)
   try {
-    ultimoMes:
-    const pagos = await Pago.find({ insumos: { $exists: true } }).populate(
-      "plan"
-    );
+    const pagos = await Pago.find({ fecha: { $gte: ultimoMes }}).populate("plan").populate("alumno");
     res.json(pagos);
   } catch (error) {
-    console.error("Error al obtener los pagos con insumos:", error);
-    res.status(500).json({ message: "Error al obtener los pagos con insumos" });
+    console.error("Error al obtener los pagos con planes activos. ", error);
+    res.status(500).json({ message: "Error al obtener los pagos con planes activos" });
   }
-  */
+  
 };
 
 pagoCtrl.getPago = async (req, res) => {
-  const pago = await Pago.findById(req.params.id);
+  const pago = await Pago.findById(req.params.id).populate("alumno").populate("plan").populate("insumos");
   res.json(pago);
 };
 
