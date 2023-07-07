@@ -2,10 +2,11 @@ const Pago = require("../models/pago");
 const Alumno = require("../models/alumno");
 const Plan = require("../models/plan");
 const mercadopago = require("mercadopago");
+const pago = require("../models/pago");
 const pagoCtrl = {};
 
 pagoCtrl.getPagos = async (req, res) => {
-  var pagos = await Pago.find().populate("alumno").populate("plan");
+  var pagos = await Pago.find().populate("alumno").populate("plan").populate("insumos");
   res.json(pagos);
 };
 
@@ -32,7 +33,7 @@ pagoCtrl.getPagoPlanesActivos = async (req, res) => {
   ultimoMes.setDate(fechaActual.getDate() - 30);
   console.log(ultimoMes)
   try {
-    const pagos = await Pago.find({ fecha: { $gte: ultimoMes }}).populate("plan").populate("alumno");
+    const pagos = await Pago.find().populate("plan").populate("alumno");
     res.json(pagos);
   } catch (error) {
     console.error("Error al obtener los pagos con planes activos. ", error);

@@ -5,7 +5,7 @@ const AlumnoSchema = require("./alumno");
 const InsumoSchema = require("./insumo");
 
 const PagoSchema = new Schema({
-    fecha:       {type: String, require: true},
+    fecha:       {type: Date, require: true},
     medioPago:   {type: String, require: true},
     total:       {type: Number, require: true},
     plan:        {type: Schema.Types.ObjectId, ref: PlanSchema, required: false},
