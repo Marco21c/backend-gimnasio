@@ -20,6 +20,7 @@ app.use('/api/user', require('./routers/usuario.route.js'));
 app.use('/api/alumno', require('./routers/alumno.route.js'));
 app.use('/api/admin', require('./routers/administrativo.route'));
 app.use('/api/entrenador', require('./routers/entrenador.route'));
+app.use('/api/pago', require('./routers/pago.route'));
 
 app.set('port', process.env.PORT || 3000);
 app.listen(app.get('port'), () => {

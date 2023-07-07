@@ -191,7 +191,7 @@ const generarCorreoBienvenida = (usuario) => {
 
   <div class="container">
     <h1>Bienvenido(a) al gimnasio</h1>
-    <p>¡Hola <span class="highlight">${usuario.user.nombres} ${usuario.user.apellidos}</span>!</p>
+    <p>¡Hola <span class="highlight">${usuario.nombres} ${usuario.apellidos}</span>!</p>
     <p>Tu cuenta ha sido creada exitosamente. A continuación, te proporcionamos tus credenciales de acceso:</p>
     <p><strong>Nombre de usuario:</strong> ${usuario.user.username}</p>
     <p><strong>Contraseña:</strong> ${usuario.user.password}</p>
@@ -206,7 +206,7 @@ const generarCorreoBienvenida = (usuario) => {
 
   return (correo = {
     from: "fetchdata03@gmail.com",
-    to: usuario.user.email,
+    to: usuario.email,
     subject: "¡Bienvenido(a)!",
     text: "¡Hola! Te damos la bienvenida.",
     html: html,
