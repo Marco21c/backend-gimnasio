@@ -65,19 +65,6 @@ administrativoCtrl.checkout = async (req, res) => {
       items: items,
     });
 
-    //Actualizo cantidad en BD
-    insumos.forEach(async (insumoParam) => {
-      try {
-        const insumoBD = await Insumo.findById(insumoParam._id);
-        if (insumoBD) {
-          insumoBD.cantidad--;
-          await insumoBD.save();
-        }
-      } catch (error) {
-        console.log("Error al actualizar la cantidad del insumo:", error);
-      }
-    });
-
     res.json({
       status: "1",
       date_created: result.body.date_created,
