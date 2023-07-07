@@ -31,6 +31,7 @@ router.post('/alumno/:id', autCtrl.verifyToken, administrativoCtrl.enviarUsuario
  * @group Administrativo
  */
 router.post('/insumo/registro', autCtrl.verifyToken, administrativoCtrl.createInsumo);
+router.post('/insumo/actualizar', autCtrl.verifyToken, insumoCtrl.actualizarStock);
 router.post('/insumo/checkout', autCtrl.verifyToken, administrativoCtrl.checkout);
 router.delete('/insumo/:id', autCtrl.verifyToken, insumoCtrl.deleteInsumo);
 

@@ -57,13 +57,13 @@ pagoCtrl.createPago = async (req, res) => {
     });
   try {
     await pago.save();
+    if(plan!=null){
+      // Asignar plan a Alumno
+      const alumnoId = alumno._id;
+      const nuevoPlan = new Plan(plan);
 
-    // Asignar plan a Alumno
-    const alumnoId = alumno._id;
-    const nuevoPlan = new Plan(plan);
-
-    await Alumno.updateOne({ _id: alumnoId }, { $set: { plan: nuevoPlan } });
-
+      await Alumno.updateOne({ _id: alumnoId }, { $set: { plan: nuevoPlan } });
+    }
     res.json({
       status: "1",
       msg: "Pago guardado.",
