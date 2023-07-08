@@ -58,7 +58,14 @@ alumnoCtrl.getRutinasAsignadas = async (req, res) => {
   const idAlumno = req.params.idalumno;
 
   try {
-    const alumno = await Alumno.findById(idAlumno);
+    const alumno = await Alumno.findById(idAlumno)
+        .populate({
+          path: "rutinas",
+          populate: {
+            path: "entrenador",
+            model: "Entrenador",
+          },
+        });
 
     if (!alumno) {
       return res
@@ -97,7 +104,13 @@ alumnoCtrl.getRutinasConAsistencia = async (req, res) => {
   const idAlumno = req.params.idalumno;
 
   try {
-    const alumno = await Alumno.findById(idAlumno);
+    const alumno = await Alumno.findById(idAlumno).populate({
+      path: "rutinas",
+      populate: {
+        path: "entrenador",
+        model: "Entrenador",
+      },
+    });
 
     if (!alumno) {
       return res
