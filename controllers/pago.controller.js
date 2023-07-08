@@ -57,7 +57,7 @@ pagoCtrl.createPago = async (req, res) => {
       msg: "Un pago de plan debe estar asociado a un alumno",
     });
   try {
-    await pago.save();
+    let pagoDB = await pago.save();
     if(plan!=null){
       // Asignar plan a Alumno
       const alumnoId = alumno._id;
@@ -68,6 +68,7 @@ pagoCtrl.createPago = async (req, res) => {
     res.json({
       status: "1",
       msg: "Pago guardado.",
+      idPago: pagoDB._id
     });
   } catch (error) {
     res.status(400).json({

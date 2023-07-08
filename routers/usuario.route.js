@@ -29,5 +29,6 @@ router.post('/login', usuarioCtrl.loginUsuario);
  * Devuelve los detalles de un usuario según su ID.
  */
 router.get('/:id', usuarioCtrl.getUsuario);
+router.get('/username/:username', usuarioCtrl.verificarUsername);
 
 module.exports = router;

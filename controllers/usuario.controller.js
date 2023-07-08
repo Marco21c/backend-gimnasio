@@ -206,5 +206,29 @@ usuarioCtrl.getUsuario = async(req,res) => {
     }
 }
 
+usuarioCtrl.verificarUsername = async(req,res) => {
+    try{
+        
+        const usuario = await Usuario.findOne({ username: req.params.username});
+
+        if (!usuario) {
+            return res.status(200).json({
+                'status': '1',
+                'disponible': true
+            });
+        }else{
+            return res.status(200).json({
+                'status': '1',
+                'disponible': false
+            });
+        }
+    }catch(error){
+        res.status(400).json({
+            'status': '0',
+            'msg': 'Error al verificar el usuario.'
+        });
+    }
+}
+
 module.exports = usuarioCtrl;
    

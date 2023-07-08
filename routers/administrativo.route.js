@@ -55,5 +55,6 @@ router.get('/alumnos', alumnoCtrl.getAlumnos);
 router.get('/entrenadores', entrenadorCtrl.getEntrenadores);
 router.get('/insumos', insumoCtrl.getInsumos);
 router.get('/planes', planCtrl.getPlanes);
+router.post('/pago/:id', administrativoCtrl.enviarFacutura);
 
 module.exports = router;

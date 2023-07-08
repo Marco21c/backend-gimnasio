@@ -48,7 +48,7 @@ insumoCtrl.createInsumo = async (req, res) => {
  * @returns {Promise<void>}
  */
 insumoCtrl.getInsumos = async (req, res) => {
-  let insumos = await Insumo.find();
+  let insumos = await Insumo.find({ cantidad: { $gt: 0 } });
   res.json(insumos);
 };
 
