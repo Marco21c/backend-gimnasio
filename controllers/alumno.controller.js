@@ -41,12 +41,10 @@ alumnoCtrl.registrarAsistencia = async (req, res) => {
       msg: "Se registró la asistencia del alumno.",
     });
   } catch (error) {
-    return res
-      .status(400)
-      .json({
-        status: "0",
-        msg: "Error al registrar la asistencia. Error: " + error,
-      });
+    return res.status(400).json({
+      status: "0",
+      msg: "Error al registrar la asistencia. Error: " + error,
+    });
   }
 };
 
@@ -82,12 +80,10 @@ alumnoCtrl.getRutinasAsignadas = async (req, res) => {
       total: alumno.rutinas.length,
     });
   } catch (error) {
-    return res
-      .status(400)
-      .json({
-        status: "0",
-        msg: "Error al devolver la lista de rutinas. Error: " + error,
-      });
+    return res.status(400).json({
+      status: "0",
+      msg: "Error al devolver la lista de rutinas. Error: " + error,
+    });
   }
 };
 
@@ -128,12 +124,10 @@ alumnoCtrl.getRutinasConAsistencia = async (req, res) => {
       rutinasAsistidas: rutinasRegistradas.length,
     });
   } catch (error) {
-    return res
-      .status(400)
-      .json({
-        status: "0",
-        msg: "Error al devolver la lista de rutinas. Error: " + error,
-      });
+    return res.status(400).json({
+      status: "0",
+      msg: "Error al devolver la lista de rutinas. Error: " + error,
+    });
   }
 };
 
@@ -155,13 +149,20 @@ alumnoCtrl.updateAlumno = async (req, res) => {
     });
   }
 
-  // Verificar si modifico la contraseña
-  req.body.password = req.body.password
-    ? await getPasswordEncrypted(req.body.password)
-    : alumnoDB.password;
-
-  const alumno = new Alumno(req.body);
   try {
+    const alumno = new Alumno(req.body);
+    //Actualizo usuario
+    let userDB = await Usuario.findById(alumnoDB.user._id);
+
+    if (userDB) {
+      userDB.username = req.body.user.username;
+      const password_encriptada = await getPasswordEncrypted(
+        req.body.user.password
+      );
+      userDB.password = password_encriptada;
+      await userDB.save();
+    }
+    
     await Alumno.updateOne({ _id: req.body._id }, alumno);
     res.json({
       status: "1",
@@ -267,6 +268,28 @@ alumnoCtrl.getAlumno = async (req, res) => {
     res.status(400).json({
       status: "0",
       msg: "Error al buscar el alumno.",
+    });
+  }
+};
+alumnoCtrl.verificarDni = async (req, res) => {
+  try {
+    const alumno = await Alumno.findOne({ dni: req.params.dni });
+
+    if (!alumno) {
+      return res.status(200).json({
+        status: "1",
+        disponible: true,
+      });
+    } else {
+      return res.status(200).json({
+        status: "1",
+        disponible: false,
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: "0",
+      msg: "Error al verificar el alumno.",
     });
   }
 };

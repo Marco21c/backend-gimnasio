@@ -2,6 +2,7 @@ const nodemailer = require("nodemailer");
 const Alumno = require("../models/alumno");
 const Insumo = require("../models/insumo");
 const Usuario = require("../models/usuario");
+const Pago = require("../models/pago");
 const mercadopago = require("mercadopago");
 const { checkout } = require("../routers/alumno.route");
 const administrativoCtrl = {};
@@ -100,6 +101,7 @@ administrativoCtrl.enviarUsuarioClaveParaAlumno = async (req, res) => {
     const alumno = await Alumno.findById(req.params.id).populate("user");
 
     // Envia por el correo del usuario las credenciales de acceso
+    const pass = req.body.pass;
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
@@ -110,7 +112,7 @@ administrativoCtrl.enviarUsuarioClaveParaAlumno = async (req, res) => {
       },
     });
 
-    const correoBienvenida = generarCorreoBienvenida(alumno);
+    const correoBienvenida = generarCorreoBienvenida(alumno, pass);
     const infoCorreoEnviado = await transporter.sendMail(correoBienvenida);
     console.log("Message sent: %s", infoCorreoEnviado.messageId);
     res.json({
@@ -131,7 +133,7 @@ administrativoCtrl.enviarUsuarioClaveParaAlumno = async (req, res) => {
  * @param {object} usuario - Objeto de modelo de alumno
  * @returns {object} - Objeto de correo de bienvenida
  */
-const generarCorreoBienvenida = (usuario) => {
+const generarCorreoBienvenida = (usuario, pass) => {
   const html = `
     <style>
     body {
@@ -181,7 +183,7 @@ const generarCorreoBienvenida = (usuario) => {
     <p>¡Hola <span class="highlight">${usuario.nombres} ${usuario.apellidos}</span>!</p>
     <p>Tu cuenta ha sido creada exitosamente. A continuación, te proporcionamos tus credenciales de acceso:</p>
     <p><strong>Nombre de usuario:</strong> ${usuario.user.username}</p>
-    <p><strong>Contraseña:</strong> ${usuario.user.password}</p>
+    <p><strong>Contraseña:</strong> ${pass}</p>
     <p>Por favor, guarda esta información de forma segura.</p>
     <p>Te esperamos en nuestro gimnasio para que puedas comenzar a entrenar y alcanzar tus metas.</p>
     <p>¡Nos vemos pronto!</p>
@@ -196,6 +198,80 @@ const generarCorreoBienvenida = (usuario) => {
     to: usuario.email,
     subject: "¡Bienvenido(a)!",
     text: "¡Hola! Te damos la bienvenida.",
+    html: html,
+  });
+};
+administrativoCtrl.enviarFacutura = async (req, res) => {
+  try {
+    const pago = await Pago.findById(req.params.id).populate("plan").populate("alumno").populate("insumos");
+    // Envia por el correo del usuario las credenciales de acceso
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "fetchdata03@gmail.com",
+        pass: "ugvoexamfmdmldoi",
+      },
+    });
+
+    const correo = generarCorreoFactura(pago);
+    console.log("arme el correo")
+    const infoCorreoEnviado = await transporter.sendMail(correo);
+    console.log("Message sent: %s", infoCorreoEnviado.messageId);
+    res.json({
+      status: "1",
+      msg: "Se envió la factura al cliente.",
+    });
+    
+  } catch (error) {
+    res.status(400).json({
+      status: "0",
+      msg: "Error al enviar la factura. Error-" + error,
+    });
+  }
+  
+};
+
+//TODO: no funciona row
+const generarCorreoFactura = (pago) => {
+  let nroFact = Math.floor(Math.random() * 9000) + 1000;
+  let fechaFormateada = pago.fecha.toLocaleDateString();
+  let row;
+  console.log(pago.insumos)
+  if (pago.plan == null) {
+    rows = pago.insumos
+      .map(function(insumo){ `
+    <tr class="item">
+      <td>${insumo.nombre}</td>
+      <td>${insumo.precio}</td>
+    </tr>
+  `
+  console.log(row)
+  });
+  }else{
+    console.log("es plan")
+    row = `
+    <tr class="item">
+      <td>${pago.plan.nombre}</td>
+      <td>${pago.plan.precio}</td>
+    </tr>
+  `
+  }
+  const html = `
+  <head><style>.invoice-box{max-width:800px;margin:auto;padding:30px;border:1px solid #eee;box-shadow:0 0 10px rgba(0,0,0,.15);font-size:16px;line-height:24px;font-family:'Helvetica Neue','Helvetica',Helvetica,Arial,sans-serif;color:#555}.invoice-box table{width:100%;line-height:inherit;text-align:left}.invoice-box table td{padding:5px;vertical-align:top}.invoice-box table tr td:nth-child(2){text-align:right}.invoice-box table tr.top table td{padding-bottom:20px}.invoice-box table tr.top table td.title{font-size:45px;line-height:45px;color:#333}.invoice-box table tr.information table td{padding-bottom:40px}.invoice-box table tr.heading td{background:#eee;border-bottom:1px solid #ddd;font-weight:bold}.invoice-box table tr.details td{padding-bottom:20px}.invoice-box table tr.item td{border-bottom:1px solid #eee}.invoice-box table tr.item.last td{border-bottom:none}.invoice-box table tr.total td:nth-child(2){border-top:2px solid #eee;font-weight:bold}@media only screen and (max-width:600px){.invoice-box table tr.top table td{width:100%;display:block;text-align:center}.invoice-box table tr.information table td{width:100%;display:block;text-align:center}}.invoice-box.rtl{direction:rtl;font-family:Tahoma,'Helvetica Neue','Helvetica',Helvetica,Arial,sans-serif}.invoice-box.rtl table{text-align:right}.invoice-box.rtl table tr td:nth-child(2){text-align:left}</style></head>
+  <body><div class="invoice-box"><table cellpadding="0" cellspacing="0"><tr class="top"><td colspan="2"><table><tr><td class="title"><img src="https://fitnessformulax.com/wp-content/uploads/2023/05/cropped-fintness-logo.png" style="width: 100%; max-width: 150px" />
+  </td><td>Factura #: ${nroFact} <br />Fecha: ${fechaFormateada} <br /></td></tr></table></td></tr><tr class="information"><td colspan="2"><table><tr><td>Fitness Center, Inc.<br />Calle Falsa 123<br />San Salvador de Jujuy, Jujuy</td><td> ${pago.alumno?.apellidos + pago.alumno?.nombres} 
+  <br/> ${pago.alumno?.dni} <br/>${pago.alumno?.email}</td></tr></table></td></tr><tr class="heading"><td>Metodo de Pago</td><td></td></tr><tr class="details"><td>Efectivo</td><td></td></tr><tr class="heading"><td>Productos</td><td>Precio</td></tr>
+  ${row}
+  <tr class="total"><td></td><td>Total: $ ${pago.total}</td></tr></table></div></body>
+  `;
+
+  return (correo = {
+    from: "fetchdata03@gmail.com",
+    to: pago.alumno.email,
+    subject: "Te enviamos tu factura",
+    text: "Gracias por confiar en nosotros",
     html: html,
   });
 };
