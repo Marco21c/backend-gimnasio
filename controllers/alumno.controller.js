@@ -152,8 +152,9 @@ alumnoCtrl.getRutinasConAsistencia = async (req, res) => {
  * @returns {Promise<void>}
  */
 alumnoCtrl.updateAlumno = async (req, res) => {
-  const alumnoId = req.params.idalumno;
-  const alumnoDB = await Alumno.findById(alumnoId);
+
+  // VERIFICAR SI EXISTE EL ALUMNO
+  const alumnoDB  = await Alumno.findById(req.params.idalumno);
 
   if (!alumnoDB) {
     return res.status(404).json({
@@ -163,28 +164,34 @@ alumnoCtrl.updateAlumno = async (req, res) => {
   }
 
   try {
-    const alumno = new Alumno(req.body);
-    //Actualizo usuario
-    let userDB = await Usuario.findById(alumnoDB.user._id);
+    // VERIFICAR SI EXISTE EL USUARIO ASOCIADO AL ALUMNO
+    const usuarioDB = await Usuario.findById(alumnoDB.user);
 
-    if (userDB) {
-      userDB.username = req.body.user.username;
-      const password_encriptada = await getPasswordEncrypted(
-        req.body.user.password
-      );
-      userDB.password = password_encriptada;
-      await userDB.save();
+    if (!usuarioDB) {
+      return res.status(404).json({
+        status: "0",
+        msg: "No se encontró el usuario para actualizar.",
+      });
     }
-    
-    await Alumno.updateOne({ _id: req.body._id }, alumno);
+
+    // VERIFICAR SI MODIFICO SU CONTRASEÑA
+    if (req.body.user.password !== usuarioDB.password) {
+      usuarioDB.password = await getPasswordEncrypted(req.body.user.password);
+      await usuarioDB.save();
+    }
+
+    // ACTUALIZACION DE DATOS
+    await Alumno.updateOne({ _id: alumnoDB._id }, req.body);
+
     res.json({
       status: "1",
-      msg: "Alumno updated",
+      msg: "Se actualizaron los datos del alumno",
     });
+
   } catch (error) {
     res.status(400).json({
       status: "0",
-      msg: "Error procesando la operacion",
+      msg: "Error al actualizar el alumno. Error: "+error,
     });
   }
 };
