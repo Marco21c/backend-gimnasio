@@ -26,7 +26,7 @@ pagoCtrl.getPagosTipo = async (req, res) => {
   }
   res.json(pagos);
 };
-
+//TODO
 pagoCtrl.getPagoPlanesActivos = async (req, res) => {
   const fechaActual = new Date();
   const ultimoMes = new Date();

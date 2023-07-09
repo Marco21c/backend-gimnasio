@@ -68,28 +68,25 @@ insumoCtrl.deleteInsumo = async (req, res) => {
 };
 
 insumoCtrl.actualizarStock = async (req, res) => {
-  const insumos = (req.body);
-  console.log(insumos)
-  insumos.forEach(async (insumoParam) => {
-    console.log(insumoParam)
-    try {
+  const insumos = req.body;
+  try {
+    for (const insumoParam of insumos) {
       const insumoBD = await Insumo.findById(insumoParam._id);
       if (insumoBD) {
-        console.log(insumoBD)
         insumoBD.cantidad -= insumoParam.cantidad;
         await insumoBD.save();
-        res.json({
-          status: "1",
-          msg: "Insumo actualizado con exito",
-        });
       }
-    } catch (error) {
-      res.status(400).json({
-        status: "0",
-        msg: "Error procesando la operacion. Error: " + error ,
-      });
     }
-  });
+    res.json({
+      status: "1",
+      msg: "Insumos actualizados con éxito",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "0",
+      msg: "Error procesando la operación. Error: " + error,
+    });
+  }
 };
 
 module.exports = insumoCtrl;
