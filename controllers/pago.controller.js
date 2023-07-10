@@ -149,5 +149,23 @@ pagoCtrl.checkoutPlan = async (req, res) => {
     });
   }
 };
+pagoCtrl.getPagosFecha = async (req, res) => {
+  console.log("entre filtro fecha");
+  const fechaDesde = new Date(req.params.desde);
+  const fechaHasta = new Date(req.params.hasta);
+  fechaDesde.setHours(0, 0, 0, 0);
+  fechaHasta.setHours(23, 59, 59, 999);
+  console.log(fechaDesde);
+  console.log(fechaHasta);
+  try{
+    const pagos = await Pago.find({ fecha: { $gte: fechaDesde, $lte: fechaHasta } })
+    .populate("alumno")
+    .populate("plan")
+    .populate("insumos");
+    res.json(pagos);
+  }catch{
+    res.status(500).json({ message: "Error al obtener los pagos filtrados por fecha" });
+  }
+};
 
 module.exports = pagoCtrl;
