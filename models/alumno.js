@@ -11,7 +11,7 @@ const AlumnoSchema = new Schema({
     apellidos:        {type: String, required: true},
     dni:              {type: String, required: true},
     fechaInscripcion: {type: Date, required: true},
-    fechaNacimiento:  {type: Date, required: false},
+    fechaNacimiento:  {type: String, required: false},
     celular:          {type: String, required: false},
     domicilio:        {type: String, required: false},
     email:            {type: String, required: true},

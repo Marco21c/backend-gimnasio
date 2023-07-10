@@ -102,6 +102,9 @@ alumnoCtrl.getRutinasAsignadas = async (req, res) => {
  */
 alumnoCtrl.getRutinasConAsistencia = async (req, res) => {
   const idAlumno = req.params.idalumno;
+  const dia = req.query.dia;
+  const mes = req.query.mes;
+  console.log(req.url)
 
   try {
     const alumno = await Alumno.findById(idAlumno).populate({
@@ -125,7 +128,50 @@ alumnoCtrl.getRutinasConAsistencia = async (req, res) => {
       });
     }
 
-    const rutinasRegistradas = alumno.rutinas.filter(
+    var rutinasFiltradas = alumno.rutinas;
+
+    // Filtrar rutinas por días si se proporciona el parámetro "dia"
+    if (dia) {
+      const diasSemana = {
+        domingo: 0,
+        lunes: 1,
+        martes: 2,
+        miercoles: 3,
+        jueves: 4,
+        viernes: 5,
+        sabado: 6
+      };
+      const diaNumerico = diasSemana[dia]; // Utiliza la variable "dia" en lugar de "req.query.dia"
+      rutinasFiltradas = rutinasFiltradas.filter((rutina) => {
+        const fechaCreacion = new Date(rutina.fechaCreacion);
+        return fechaCreacion.getDay() === diaNumerico;
+      });
+    }
+
+    // Filtrar rutinas por meses si se proporciona el parámetro "mes"
+    if (mes) {
+      const mesesAnio = {
+        enero: 0,
+        febrero: 1,
+        marzo: 2,
+        abril: 3,
+        mayo: 4,
+        junio: 5,
+        julio: 6,
+        agosto: 7,
+        septiembre: 8,
+        octubre: 9,
+        noviembre: 10,
+        diciembre: 11
+      };
+      const mesNumerico = mesesAnio[mes];
+      rutinasFiltradas = rutinasFiltradas.filter((rutina) => {
+        const fechaCreacion = new Date(rutina.fechaCreacion);
+        return fechaCreacion.getMonth() === mesNumerico;
+      });
+    }
+
+    const rutinasRegistradas = rutinasFiltradas.filter(
       (rutina) => rutina.asistencia === true
     );
 
@@ -139,7 +185,7 @@ alumnoCtrl.getRutinasConAsistencia = async (req, res) => {
   } catch (error) {
     return res.status(400).json({
       status: "0",
-      msg: "Error al devolver la lista de rutinas. Error: " + error,
+      msg: error.message,
     });
   }
 };

@@ -37,7 +37,7 @@ entrenadorCtrl.agregarRutinaAlAlumno = async (req, res) => {
 
         await Alumno.findByIdAndUpdate(
             idAlumno,
-            {$push: {rutinas: rutina}}
+            {$push: {rutinas: rut}}
         );
 
         res.json({'status': '1', 'msg': 'Se agrego la rutina al alumno.'});
@@ -59,12 +59,12 @@ entrenadorCtrl.agregarRutinaAlAlumno = async (req, res) => {
  * @returns {Promise<*>}
  */
 entrenadorCtrl.agregarEjerciciosARutina = async (req, res) => {
-
     if (req.userRol !== 'ENTRENADOR') {
         return res.status(403).json({'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.'});
     }
 
     try {
+
         const id = req.params.idrutina;
         let rutina = await Rutina.findById(id);
 
@@ -79,11 +79,18 @@ entrenadorCtrl.agregarEjerciciosARutina = async (req, res) => {
             id,
             {$push: {ejercicios: ejercicio}}
         );
+
+        await Alumno.updateOne(
+            { "rutinas._id": rutina._id },
+            { $push: { "rutinas.$[rutina].ejercicios": ejercicio } },
+            { arrayFilters: [{ "rutina._id": rutina._id }] }
+        );
+
         res.json({'status': '1', 'msg': 'Se agrego el ejercicio a la rutina.'});
     } catch (error) {
         res.status(400).json({
             'status': '0',
-            'msg': 'Error al agregar el ejercicio. error-' + error
+            'msg': error.message
         });
     }
 }
