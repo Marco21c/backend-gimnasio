@@ -144,6 +144,66 @@ alumnoCtrl.getRutinasConAsistencia = async (req, res) => {
   }
 };
 
+// Módulo para verificar la existencia del alumno
+async function verificarExistenciaAlumno(alumnoId) {
+  const alumnoDB = await Alumno.findById(alumnoId);
+
+  if (!alumnoDB) {
+    throw new Error("No se encontró el alumno para actualizar.");
+  }
+
+  return alumnoDB;
+}
+
+// Módulo para verificar la existencia del usuario asociado al alumno
+async function verificarExistenciaUsuario(alumnoDB) {
+  const usuarioDB = await Usuario.findById(alumnoDB.user);
+
+  if (!usuarioDB) {
+    throw new Error("No se encontró el usuario para actualizar.");
+  }
+
+  return usuarioDB;
+}
+
+// Módulo para verificar y actualizar la contraseña
+async function verificarYActualizarPassword(reqBodyUser, usuarioDB) {
+  if (reqBodyUser.password !== usuarioDB.password) {
+    usuarioDB.password = await getPasswordEncrypted(reqBodyUser.password);
+    await usuarioDB.save();
+  }
+}
+
+// Módulo para verificar y actualizar el DNI
+async function verificarYActualizarDNI(reqBodyDNI, alumnoDB) {
+  if (reqBodyDNI !== alumnoDB.dni) {
+    const existeAlumnoConDNI = await Alumno.exists({ dni: reqBodyDNI });
+
+    if (existeAlumnoConDNI) {
+      throw new Error("El DNI especificado ya existe.");
+    }
+  }
+}
+
+// Módulo para verificar y actualizar el nombre de usuario
+async function verificarYActualizarUsername(reqBodyUsername, usuarioDB) {
+  if (reqBodyUsername !== usuarioDB.username) {
+    const existeUsuarioConUsername = await Usuario.exists({ username: reqBodyUsername });
+
+    if (existeUsuarioConUsername) {
+      throw new Error("El username especificado ya existe.");
+    } else {
+      usuarioDB.username = reqBodyUsername;
+      await usuarioDB.save();
+    }
+  }
+}
+
+// Módulo para actualizar los datos del alumno
+async function actualizarDatosAlumno(alumnoId, reqBody) {
+  await Alumno.updateOne({ _id: alumnoId }, reqBody);
+}
+
 /**
  * Permite actualizar los datos personales de un alumno,
  * en caso de modificar la contraseña, se volvera a encriptar
@@ -152,39 +212,25 @@ alumnoCtrl.getRutinasConAsistencia = async (req, res) => {
  * @returns {Promise<void>}
  */
 alumnoCtrl.updateAlumno = async (req, res) => {
-  const alumnoId = req.params.idalumno;
-  const alumnoDB = await Alumno.findById(alumnoId);
-
-  if (!alumnoDB) {
-    return res.status(404).json({
-      status: "0",
-      msg: "No se encontró el alumno para actualizar.",
-    });
-  }
-
   try {
-    const alumno = new Alumno(req.body);
-    //Actualizo usuario
-    let userDB = await Usuario.findById(alumnoDB.user._id);
+    const alumnoDB = await verificarExistenciaAlumno(req.params.idalumno);
+    const usuarioDB = await verificarExistenciaUsuario(alumnoDB);
 
-    if (userDB) {
-      userDB.username = req.body.user.username;
-      const password_encriptada = await getPasswordEncrypted(
-        req.body.user.password
-      );
-      userDB.password = password_encriptada;
-      await userDB.save();
-    }
-    
-    await Alumno.updateOne({ _id: req.body._id }, alumno);
+    await verificarYActualizarPassword(req.body.user, usuarioDB);
+    await verificarYActualizarDNI(req.body.dni, alumnoDB);
+    await verificarYActualizarUsername(req.body.user.username, usuarioDB);
+
+    await actualizarDatosAlumno(alumnoDB._id, req.body);
+
     res.json({
       status: "1",
-      msg: "Alumno updated",
+      msg: "Se actualizaron los datos del alumno",
     });
+
   } catch (error) {
     res.status(400).json({
       status: "0",
-      msg: "Error procesando la operacion",
+      msg: error.message,
     });
   }
 };
