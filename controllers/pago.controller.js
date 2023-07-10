@@ -3,6 +3,7 @@ const Alumno = require("../models/alumno");
 const Plan = require("../models/plan");
 const mercadopago = require("mercadopago");
 const pago = require("../models/pago");
+const plan = require("../models/plan");
 const pagoCtrl = {};
 
 pagoCtrl.getPagos = async (req, res) => {
@@ -31,9 +32,10 @@ pagoCtrl.getPagoPlanesActivos = async (req, res) => {
   const fechaActual = new Date();
   const ultimoMes = new Date();
   ultimoMes.setDate(fechaActual.getDate() - 30);
-  console.log(ultimoMes)
   try {
-    const pagos = await Pago.find().populate("plan").populate("alumno");
+    const pagos = await Pago.find({ fecha: { $gte: ultimoMes }, plan: { $exists: true, $ne: null } })
+  .populate("plan")
+  .populate("alumno");
     res.json(pagos);
   } catch (error) {
     console.error("Error al obtener los pagos con planes activos. ", error);
@@ -150,7 +152,6 @@ pagoCtrl.checkoutPlan = async (req, res) => {
   }
 };
 pagoCtrl.getPagosFecha = async (req, res) => {
-  console.log("entre filtro fecha");
   const fechaDesde = new Date(req.params.desde);
   const fechaHasta = new Date(req.params.hasta);
   fechaDesde.setHours(0, 0, 0, 0);
@@ -167,5 +168,23 @@ pagoCtrl.getPagosFecha = async (req, res) => {
     res.status(500).json({ message: "Error al obtener los pagos filtrados por fecha" });
   }
 };
+pagoCtrl.getCuotasFiltradas = async (req, res) => {
+  console.log("getCuotasFiltradas");
+  const fechaDesde = new Date(req.query.desde);
+  const fechaHasta = new Date(req.query.hasta);
+  fechaDesde.setHours(0, 0, 0, 0);
+  fechaHasta.setHours(23, 59, 59, 999);
+  try {
+    const pagos = await Pago.find({
+      plan: { $exists: true },
+      fecha: { $gte: fechaDesde, $lte: fechaHasta }
+    }).populate("alumno").populate("plan");
+    console.log(pagos)
+    res.json(pagos);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
 
 module.exports = pagoCtrl;
