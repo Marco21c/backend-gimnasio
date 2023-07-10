@@ -16,7 +16,7 @@ const autCtrl = require("../controllers/auth.controller");
  Verifica el token antes de permitir el acceso.
  Llama al controlador usuarioCtrl.createUsuario para procesar la solicitud.
  */
-router.post('/sign-up', autCtrl.verifyToken, usuarioCtrl.createUsuario);
+router.post('/sign-up', usuarioCtrl.createUsuario);
 
 /**
  Ruta para el inicio de sesión de usuarios.

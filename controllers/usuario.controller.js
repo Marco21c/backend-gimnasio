@@ -33,9 +33,7 @@ async function getPasswordEncrypted(password) {
  */
 usuarioCtrl.createUsuario = async (req, res) => {
 
-    if (req.userRol !== 'ADMINISTRATIVO') {
-        return res.status(403).json({ 'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.' });
-    }
+   
     const {username, password, rol } = req.body;
 
     let usuarioBD = await Usuario.findOne({ username: username });
@@ -80,7 +78,7 @@ usuarioCtrl.createUsuario = async (req, res) => {
 
         if (model) {
             let registro;
-            if(rol == "ALUMNO") 
+            if(rol == "ALUMNO"){
               registro = new model({  user: usuarioGuardado._id , nombres: req.body.nombres, apellidos: req.body.apellidos, 
                                       dni: req.body.dni, fechaNacimiento: req.body.fechaNacimiento,
                                       celular: req.body.celular, domicilio: req.body.domicilio,
@@ -91,7 +89,7 @@ usuarioCtrl.createUsuario = async (req, res) => {
                                       pesoActual: req.body.pesoActual,
                                       nivelFisico: req.body.nivelFisico,
                                       plan: req.body.plan});
-            else
+            }else
               registro = new model({ user: usuarioGuardado._id , nombres: req.body.nombres, apellidos: req.body.apellidos});
             var reg = await registro.save();
             return res.json({ status: '1', msg: successMessage, userId: reg._id});

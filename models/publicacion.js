@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
 const {Schema} = mongoose;
 
-const PublicacionSchema = new Schema({
-       
-    foto : {type:String, required: true},
+const PublicacionSchema = new Schema({      
+    fecha : {type:String, required: false},
     descripcion : {type:String,required:true}
 })
 
