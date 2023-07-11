@@ -372,7 +372,7 @@ alumnoCtrl.getAlumno = async (req, res) => {
   } catch (error) {
     res.status(400).json({
       status: "0",
-      msg: "Error al buscar el alumno.",
+      msg: error.message
     });
   }
 };

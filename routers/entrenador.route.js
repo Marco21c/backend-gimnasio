@@ -13,6 +13,8 @@ const router = express.Router();
  */
 router.put('/:identrenador/alumnos/:idalumno/rutina', autCtrl.verifyToken, entrenadorCtrl.agregarRutinaAlAlumno);
 
+router.get('/:identrenador/rutinas', autCtrl.verifyToken, entrenadorCtrl.getRutinaAsociadas);
+
 /**
  * Agregar ejercicios a una rutina
  *

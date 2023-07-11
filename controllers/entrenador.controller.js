@@ -4,6 +4,41 @@ const Rutina = require("../models/rutina");
 const Ejercicio = require("../models/ejercicio");
 const entrenadorCtrl = {};
 
+
+entrenadorCtrl.getRutinaAsociadas = async (req, res) => {
+    if (req.userRol !== 'ENTRENADOR') {
+        return res.status(403).json({'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.'});
+    }
+
+    const idEntrenador = req.params.identrenador;
+
+    try {
+        const rutinasAsociadas = [];
+
+        const alumnos = await Alumno.find().populate('rutinas');
+
+        for (const alumno of alumnos) {
+            for (const rutina of alumno.rutinas) {
+                if (rutina.entrenador.toString() === idEntrenador) {
+                    rutinasAsociadas.push(rutina);
+                }
+            }
+        }
+        console.log(rutinasAsociadas);
+
+        res.json({
+            'status': '1',
+            'msg': 'Se obtuvieron las rutinas asociadas al entrenador.',
+            rutinas: rutinasAsociadas
+        });
+    } catch (error) {
+        res.status(400).json({
+            'status': '0',
+            'msg': error.message
+        });
+    }
+}
+
 /**
  * Permite agregarle una rutina al alumno
  * @param req
@@ -46,7 +81,7 @@ entrenadorCtrl.agregarRutinaAlAlumno = async (req, res) => {
 
         res.status(400).json({
             'status': '0',
-            'msg': 'Error al agregar la rutina. error-' + error
+            'msg':  error.message
         });
 
     }
@@ -129,7 +164,7 @@ entrenadorCtrl.getEjercicios = async (req, res) => {
     } catch (error) {
         res.status(400).json({
             'status': '0',
-            'msg': 'Error al devolver los ejercicios. Error-' + error
+            'msg': error.message
         });
     }
 }
@@ -145,7 +180,7 @@ entrenadorCtrl.createEjercicios = async (req, res) => {
     } catch (error) {
         res.status(400).json({
             'status': '0',
-            'msg': 'error al crear ejercicio'
+            'msg': error.message
         })
     }
 }
