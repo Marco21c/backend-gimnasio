@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d5c619de-9671-466b-9311-d4ba55599075" name="Changes" comment="fix: Agregacion de ejercicios a una rutina.">
+    <list default="true" id="d5c619de-9671-466b-9311-d4ba55599075" name="Changes" comment="feat: Rutinas de un entrenador en particular.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controllers/alumno.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/alumno.controller.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controllers/entrenador.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/entrenador.controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database.js" beforeDir="false" afterPath="$PROJECT_DIR$/database.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routers/entrenador.route.js" beforeDir="false" afterPath="$PROJECT_DIR$/routers/entrenador.route.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -19,7 +18,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="feature-alumno" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -56,7 +55,7 @@
       <workItem from="1688863799802" duration="6000" />
       <workItem from="1688950855489" duration="846000" />
       <workItem from="1688984787466" duration="27702000" />
-      <workItem from="1689063782949" duration="1788000" />
+      <workItem from="1689063782949" duration="9952000" />
     </task>
     <task id="LOCAL-00001" summary="fix: Actualizacion de datos para el alumno.">
       <created>1688928954303</created>
@@ -79,7 +78,14 @@
       <option name="project" value="LOCAL" />
       <updated>1689011127185</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="feat: Rutinas de un entrenador en particular.">
+      <created>1689072833244</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1689072833244</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -127,6 +133,7 @@
     <MESSAGE value="fix: Actualizacion de datos para el alumno." />
     <MESSAGE value="ref: Responsabilidad unica en actualizar alumno." />
     <MESSAGE value="fix: Agregacion de ejercicios a una rutina." />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: Agregacion de ejercicios a una rutina." />
+    <MESSAGE value="feat: Rutinas de un entrenador en particular." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: Rutinas de un entrenador en particular." />
   </component>
 </project>

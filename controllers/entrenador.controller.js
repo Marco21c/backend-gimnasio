@@ -24,7 +24,6 @@ entrenadorCtrl.getRutinaAsociadas = async (req, res) => {
                 }
             }
         }
-        console.log(rutinasAsociadas);
 
         res.json({
             'status': '1',
@@ -68,6 +67,15 @@ entrenadorCtrl.agregarRutinaAlAlumno = async (req, res) => {
 
         rutina.entrenador = entrenador;
         let rut = new Rutina(rutina);
+
+        // Iterar sobre los ejercicios de la rutina y guardarlos individualmente. SI tiene ejercicios para guardar
+        if (rutina.ejercicios.length !== 0) {
+            for (const ejercicio of rutina.ejercicios) {
+                const nuevoEjercicio = new Ejercicio(ejercicio);
+                await nuevoEjercicio.save();
+            }
+        }
+
         await rut.save();
 
         await Alumno.findByIdAndUpdate(
@@ -139,6 +147,27 @@ entrenadorCtrl.agregarEjerciciosARutina = async (req, res) => {
 entrenadorCtrl.getEntrenadores = async (req, res) => {
     let entrenadores = await Entrenador.find().populate('user');
     res.json(entrenadores);
+}
+
+entrenadorCtrl.getEntrenador = async (req, res) => {
+    try {
+        let entrenador = await Entrenador.findById(req.params.identrenador);
+
+        if (!entrenador) {
+            return res.status(404).json({'status': '0', 'msg': 'No se encontró el entrenador.'});
+        }
+
+        res.json({'status': '1',
+            'msg': 'Se encontro al entrenador.',
+            'result': entrenador
+        });
+
+    } catch (error) {
+        res.status(400).json({
+            'status': '0',
+            'msg':  error.message
+        });
+    }
 }
 
 /**

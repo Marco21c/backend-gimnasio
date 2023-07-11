@@ -13,7 +13,15 @@ const router = express.Router();
  */
 router.put('/:identrenador/alumnos/:idalumno/rutina', autCtrl.verifyToken, entrenadorCtrl.agregarRutinaAlAlumno);
 
+/**
+ * Permite devolver las rutinas que tiene asociado un entrenador.
+ */
 router.get('/:identrenador/rutinas', autCtrl.verifyToken, entrenadorCtrl.getRutinaAsociadas);
+
+/**
+ * Permite devolver los datos de un entrenador.
+ */
+router.get('/:identrenador', autCtrl.verifyToken, entrenadorCtrl.getEntrenador);
 
 /**
  * Agregar ejercicios a una rutina
