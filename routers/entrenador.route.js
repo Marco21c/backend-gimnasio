@@ -18,6 +18,8 @@ router.put('/:identrenador/alumnos/:idalumno/rutina', autCtrl.verifyToken, entre
  */
 router.get('/:identrenador/rutinas', autCtrl.verifyToken, entrenadorCtrl.getRutinaAsociadas);
 
+router.get('/rutinas', autCtrl.verifyToken, entrenadorCtrl.getRutinas);
+
 /**
  * Permite devolver los datos de un entrenador.
  */

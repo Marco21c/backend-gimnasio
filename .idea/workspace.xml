@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="d5c619de-9671-466b-9311-d4ba55599075" name="Changes" comment="feat: Rutinas de un entrenador en particular.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/alumno.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/alumno.controller.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controllers/entrenador.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/entrenador.controller.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routers/entrenador.route.js" beforeDir="false" afterPath="$PROJECT_DIR$/routers/entrenador.route.js" afterDir="false" />
     </list>
@@ -96,19 +95,7 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="FILTERS">
-                <map>
-                  <entry key="branch">
-                    <value>
-                      <list>
-                        <option value="master" />
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
-            </State>
+            <State />
           </value>
         </entry>
       </map>

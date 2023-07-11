@@ -4,6 +4,26 @@ const Rutina = require("../models/rutina");
 const Ejercicio = require("../models/ejercicio");
 const entrenadorCtrl = {};
 
+entrenadorCtrl.getRutinas = async (req, res) => {
+    if (req.userRol !== 'ENTRENADOR') {
+        return res.status(403).json({'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.'});
+    }
+
+    try {
+        const rutinas = await Rutina.find();
+
+        res.json({
+            status: '1',
+            msg: 'Ok',
+            rutinas: rutinas
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: '0',
+            msg: error.message
+        });
+    }
+}
 
 entrenadorCtrl.getRutinaAsociadas = async (req, res) => {
     if (req.userRol !== 'ENTRENADOR') {
