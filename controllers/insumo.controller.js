@@ -88,5 +88,9 @@ insumoCtrl.actualizarStock = async (req, res) => {
     });
   }
 };
+insumoCtrl.getInsumosSinStock = async (req, res) => {
+  let insumos = await Insumo.find({ cantidad: { $eq: 0 } });
+  res.json(insumos);
+};
 
 module.exports = insumoCtrl;
