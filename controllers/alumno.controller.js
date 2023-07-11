@@ -398,5 +398,31 @@ alumnoCtrl.verificarDni = async (req, res) => {
     });
   }
 };
+alumnoCtrl.getIngresosPorMes = async (req, res) => {
+  const fechaActual = new Date();
+  const anioActual = fechaActual.getFullYear();
+  const mesActual = fechaActual.getMonth() + 1; // Los meses en JavaScript van de 0 a 11, por lo que sumamos 1
+
+  let ingresosPorMes = [];
+  
+  for (let mes = 1; mes <= mesActual; mes++) {
+    const fechaInicioMes = new Date(anioActual, mes - 1, 1, 0, 0, 0); // Fecha de inicio del mes a las 00:00:00
+    const ultimoDiaMes = new Date(anioActual, mes, 0); // Último día del mes
+    const fechaFinMes = new Date(anioActual, mes - 1, ultimoDiaMes.getDate(), 23, 59, 59, 999); // Fecha de fin del mes a las 23:59:59
+    
+    const alumnosInscritos = await Alumno.find({
+      fechaInscripcion: { $gte: fechaInicioMes, $lte: fechaFinMes },
+    });
+    
+    ingresosPorMes.push({
+      mes: mes,
+      mesNombre: new Date(0, mes-1).toLocaleString('default', { month: 'long' }),
+      anio: anioActual,
+      alumnosInscritos: alumnosInscritos.length,
+    });
+  }
+  
+  res.json(ingresosPorMes);
+};
 
 module.exports = alumnoCtrl;

@@ -318,4 +318,5 @@ administrativoCtrl.eliminarInsumo = async (req, res) => {
   // TODO
 };
 
+
 module.exports = administrativoCtrl;
