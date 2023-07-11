@@ -169,7 +169,7 @@ usuarioCtrl.loginUsuario = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             status: 0,
-            error: 'Error en el login. Error-' + error
+            error: error.message
         });
     }
 };

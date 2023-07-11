@@ -335,16 +335,44 @@ alumnoCtrl.getPublicaciones = async (req, res) => {
  * @returns {Promise<void>}
  */
 alumnoCtrl.getAlumnos = async (req, res) => {
-  let alumnos = await Alumno.find()
-    .populate("plan")
-    .populate({
-      path: "rutinas",
-      populate: {
-        path: "entrenador",
-        model: "Entrenador",
-      },
-    })
-    .populate("user");
+  console.log(`Fecha de consulta: ${new Date().toISOString()} - URL: ${req.url}`);
+  const { dni, plan, apellidos, nombres, email } = req.query;
+  console.log('Filtros recibidos:', dni, plan, apellidos, nombres, email);
+
+  const criteria = {};
+
+  if (dni) {
+    criteria.dni = dni;
+  }
+
+  if (plan) {
+    criteria.plan = plan;
+  }
+
+  if (apellidos) {
+    criteria.apellidos = { $regex: `.*${apellidos}.*`, $options: "i" };
+  }
+
+  if (nombres) {
+    criteria.nombres = { $regex: `.*${nombres}.*`, $options: "i" };
+  }
+
+  if (email) {
+    criteria.email = email;
+  }
+
+  console.log('Criteria:', criteria);
+
+  let alumnos = await Alumno.find(criteria)
+      .populate("plan")
+      .populate({
+        path: "rutinas",
+        populate: {
+          path: "entrenador",
+          model: "Entrenador",
+        },
+      })
+      .populate("user");
 
   res.json(alumnos);
 };

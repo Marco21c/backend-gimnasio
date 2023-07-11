@@ -26,6 +26,7 @@ entrenadorCtrl.getRutinas = async (req, res) => {
 }
 
 entrenadorCtrl.getRutinaAsociadas = async (req, res) => {
+
     if (req.userRol !== 'ENTRENADOR') {
         return res.status(403).json({'status': '0', 'msg': 'Acceso denegado. No tienes permisos suficientes.'});
     }
