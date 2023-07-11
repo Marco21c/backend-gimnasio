@@ -13,6 +13,7 @@ router.put('/:idalumno', alumnoCtrl.updateAlumno);
 router.get('/:idalumno/publicaciones', alumnoCtrl.getPublicaciones);
 router.put('/:idalumno/publicacion/registrar', alumnoCtrl.createPublicacion);
 router.get('/dni/:dni', alumnoCtrl.verificarDni);
+router.get('/ingresos/mes', alumnoCtrl.getIngresosPorMes);
 
 // TODO: FALTA VER EL MODIFICAR NOMBRE_USUARIO
 
