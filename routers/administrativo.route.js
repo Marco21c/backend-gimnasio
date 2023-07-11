@@ -34,6 +34,7 @@ router.post('/insumo/registro', autCtrl.verifyToken, administrativoCtrl.createIn
 router.post('/insumo/actualizar', autCtrl.verifyToken, insumoCtrl.actualizarStock);
 router.post('/insumo/checkout', autCtrl.verifyToken, administrativoCtrl.checkout);
 router.delete('/insumo/:id', autCtrl.verifyToken, insumoCtrl.deleteInsumo);
+router.get('/insumo/sin-stock', insumoCtrl.getInsumosSinStock);
 
 /**
  * Crear un nuevo plan
