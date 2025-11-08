@@ -8,6 +8,7 @@
  Se inicia el servidor y se muestra un mensaje en la consola indicando el puerto en el que se está ejecutando.
  @module app
  */
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const {mongoose} = require('./database');
