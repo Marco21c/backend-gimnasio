@@ -15,7 +15,7 @@ const {mongoose} = require('./database');
 var app = express();
 
 app.use(express.json());
-app.use(cors({origin: 'http://localhost:4200'}));
+app.use(cors({origin: 'https://gestiongimnasio.netlify.app'}));
 
 app.use('/api/user', require('./routers/usuario.route.js'));
 app.use('/api/alumno', require('./routers/alumno.route.js'));
